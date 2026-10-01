@@ -61,7 +61,7 @@ ROWS = [
 def test_headline_reports_absolute_point_differences():
     md = results_table.build_markdown(ROWS, EXPERIMENTS, None, [])
     headline = md.split("## Headline")[1].split("##")[0]
-    assert "Best configuration: `hybrid_rerank`" in headline
+    assert "Highest-scoring configuration: `hybrid_rerank`" in headline
     # 78% - 60% = +18.0 points (not "+30%"); correctness 79% - 70% = +9.0 points
     assert "Recall@5 +18.0 pts (60.0% → 78.0%)" in headline
     assert "correctness +9.0 pts (70.0% → 79.0%)" in headline
@@ -177,3 +177,14 @@ def test_report_spreads_examples_across_causes_and_leaves_placeholders():
     assert "#### q-101" in report and "#### q-102" in report  # rarer causes still shown
     assert report.count("**My diagnosis:** _TODO") == 15
     assert "## Conclusions" in report and "Reference answer wrong" in report
+
+
+def test_headline_flags_differences_that_could_be_chance():
+    # Same average on different questions: a +0 difference whose interval spans zero.
+    base = {f"q-{n:03d}": {"recall_at_5": float(n % 2), "generation": None} for n in range(100)}
+    best = {
+        f"q-{n:03d}": {"recall_at_5": float((n + 1) % 2), "generation": None} for n in range(100)
+    }
+    per_question = {"dense_baseline": base, "hybrid_rerank": best}
+    md = results_table.build_markdown(ROWS, EXPERIMENTS, None, [], per_question)
+    assert "95% CI" in md and "not statistically clear" in md

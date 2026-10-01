@@ -122,29 +122,69 @@ def ablation_table(
     return lines
 
 
-def headline(rows: dict[str, dict]) -> list[str]:
+def correctness_scores(records: dict) -> dict[str, float]:
+    return {
+        i: r["generation"]["correctness"]["score"]
+        for i, r in records.items()
+        if r.get("generation") and r["generation"].get("correctness")
+    }
+
+
+def headline(rows: dict[str, dict], per_question: dict | None = None) -> list[str]:
+    per_question = per_question or {}
     generated = [r for r in rows.values() if num(r, "correctness") is not None]
     pool = generated or list(rows.values())
     key = "correctness" if generated else "mrr"
     best = max(pool, key=lambda r: (num(r, key) or 0, num(r, "mrr") or 0))
     base = rows.get(BASELINE)
-    lines = [f"**Best configuration: `{best['config']}`** (highest {key} on the dev split)."]
+    lines = [f"**Highest-scoring configuration: `{best['config']}`** (by {key}, dev split)."]
     if base is None or best["config"] == BASELINE:
         lines.append("It is the baseline itself; no improvement over the baseline was found.")
         return lines
+
+    intervals = {}  # metric -> (low, high) of the paired difference, where computable
+    if best["config"] in per_question and BASELINE in per_question:
+        new, old = per_question[best["config"]], per_question[BASELINE]
+        ids = sorted(i for i in old if i in new and "recall_at_5" in old[i])
+        if ids:
+            _, low, high = paired_bootstrap_ci(
+                [old[i]["recall_at_5"] for i in ids], [new[i]["recall_at_5"] for i in ids]
+            )
+            intervals["recall_at_5"] = (low, high)
+        old_c, new_c = correctness_scores(old), correctness_scores(new)
+        ids = sorted(set(old_c) & set(new_c))
+        if ids:
+            _, low, high = paired_bootstrap_ci([old_c[i] for i in ids], [new_c[i] for i in ids])
+            intervals["correctness"] = (low, high)
+
+    def ci(metric: str) -> str:
+        if metric not in intervals:
+            return ""
+        low, high = intervals[metric]
+        return f", 95% CI {low * 100:+.1f} to {high * 100:+.1f}"
+
     parts = [
         f"Recall@5 {points(num(best, 'recall_at_5'), num(base, 'recall_at_5'))} "
-        f"({pct(num(base, 'recall_at_5'))} → {pct(num(best, 'recall_at_5'))})",
+        f"({pct(num(base, 'recall_at_5'))} → {pct(num(best, 'recall_at_5'))}{ci('recall_at_5')})",
         f"MRR {(num(best, 'mrr') or 0) - (num(base, 'mrr') or 0):+.3f} "
         f"({num(base, 'mrr'):.3f} → {num(best, 'mrr'):.3f})",
     ]
     if num(best, "correctness") is not None and num(base, "correctness") is not None:
         parts.append(
             f"correctness {points(num(best, 'correctness'), num(base, 'correctness'))} "
-            f"({pct(num(base, 'correctness'))} → {pct(num(best, 'correctness'))})"
+            f"({pct(num(base, 'correctness'))} → {pct(num(best, 'correctness'))}"
+            f"{ci('correctness')})"
         )
         parts.append(f"faithfulness {points(num(best, 'faithfulness'), num(base, 'faithfulness'))}")
     lines.append("Compared with the dense baseline: " + "; ".join(parts) + ".")
+    unclear = [m for m, (low, high) in intervals.items() if low <= 0 <= high]
+    if unclear:
+        lines.append(
+            "**The 95% interval includes zero for "
+            + " and ".join(m.replace("_at_", "@").replace("recall", "Recall") for m in unclear)
+            + ", so these improvements are not statistically clear on this test set: "
+            "they could be chance.**"
+        )
     lines.append(
         f"Median latency: {latency(base)} for the baseline, {latency(best)} for `{best['config']}`."
     )
@@ -200,7 +240,7 @@ def build_markdown(
         "",
         "## Headline",
         "",
-        *headline(dev),
+        *headline(dev, per_question),
         "",
         "## All configurations (dev split)",
         "",
