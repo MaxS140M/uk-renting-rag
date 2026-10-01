@@ -1,0 +1,8 @@
+config,split,run_at,corpus,prompt_version,n_questions,n_answerable,n_unanswerable,recall_at_1,recall_at_5,mrr,evidence_recall_at_5_multi,unmapped_evidence,generated,faithfulness,faithful_rate,correctness,correct_rate,refusal_accuracy,false_refusal_rate,retrieval_ms_p50,retrieval_ms_p95,generation_ms_p50,generation_ms_p95,total_ms_p50,total_ms_p95,dense_ms_p50,bm25_ms_p50,fusion_ms_p50,rerank_ms_p50
+bm25,dev,2026-10-01T19:18:12+00:00,c1f26012c3e5,v1,110,99,11,0.2929,0.6465,0.4379,0.3508,0,0,,,,,,,1.1,1.9,,,,,,1.1,,
+hybrid,dev,2026-10-01T19:18:12+00:00,c1f26012c3e5,v1,110,99,11,0.3535,0.6667,0.4946,0.4365,0,0,,,,,,,10.0,12.9,,,,,8.1,1.9,0.1,
+hybrid_rerank,dev,2026-10-01T19:18:12+00:00,c1f26012c3e5,v1,110,99,11,0.3434,0.6768,0.4786,0.4159,0,0,,,,,,,808.6,929.6,,,,,9.4,2.0,0.1,796.6
+hybrid_rerank_chunk256,dev,2026-10-01T19:18:12+00:00,c1f26012c3e5,v1,110,99,11,0.2727,0.6869,0.4377,0.327,0,0,,,,,,,535.3,636.2,,,,,9.9,2.8,0.1,522.0
+hybrid_rerank_chunk500,dev,2026-10-01T19:18:12+00:00,c1f26012c3e5,v1,110,99,11,0.3636,0.7071,0.5006,0.5143,0,0,,,,,,,995.9,1087.9,,,,,9.4,1.9,0.1,984.2
+dense_baseline,dev,2026-10-01T20:17:05+00:00,c1f26012c3e5,v1,110,99,11,0.3333,0.6768,0.4629,0.4651,0,110,0.884,0.5949,0.6162,0.4848,1.0,0.202,8.5,11.0,3037.4,5119.3,3045.4,5129.5,8.5,,,
+hybrid_rerank_bge,dev,2026-10-01T20:17:05+00:00,c1f26012c3e5,v1,110,99,11,0.3636,0.7172,0.4941,0.4754,0,110,0.8722,0.4881,0.6566,0.5051,1.0,0.1515,836.1,903.2,3139.9,5013.8,3954.7,5895.1,39.9,2.1,0.1,792.6

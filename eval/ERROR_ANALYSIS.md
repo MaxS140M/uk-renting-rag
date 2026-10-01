@@ -1,0 +1,612 @@
+# Error analysis: `hybrid_rerank_bge`
+
+Drafted by `scripts/error_analysis.py`. Causes were assigned automatically and must be checked by reading each example: **the diagnoses, fixes and conclusions below are mine to write** (marked TODO).
+
+65 of 110 dev questions failed: a correctness verdict other than correct, an unsupported claim, or a missed refusal.
+
+## Failures by likely cause
+
+| Cause | Count |
+|---|---:|
+| Correct passage not retrieved (not in the top 10) | 16 |
+| Correct passage retrieved but ranked too low (top 10, not in the passages given to the LLM) | 9 |
+| Answer not in the corpus, but the model answered anyway | 0 |
+| Correct passage given to the model, but it ignored or misread it | 40 |
+| Judge error: the answer was actually fine | _TODO after review_ |
+| Reference answer wrong (the test set was not human-reviewed) | _TODO after review_ |
+
+## Examples (15 of 65)
+
+### Correct passage not retrieved (not in the top 10)
+
+#### q-018
+
+**Question** (factual): Is there a fee to apply to the tribunal to challenge a rent increase?
+
+**Gold evidence** (not in the top 10):
+> This application costs £47. (`apply-for-an-open-market-rent-determination`)
+
+**Passages given to the model** (top 5):
+1. Solve a residential property dispute > Overview
+2. Assured periodic tenancies: a guide for tenants > Rent increases > If you do not agree with the increase
+3. Apply for an open market rent determination > Overview
+4. Apply for an open market rent determination > Overview > If you think the landlord’s notice is not legally valid
+5. Private renting > Rent disputes > If you have a regulated tenancy
+
+**Answer:**
+
+> I can't find that in the guidance. I suggest checking GOV.UK directly or getting advice from Citizens Advice or Shelter about tribunal fees.
+>
+> Guidance retrieved: 2026-10-01
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** Yes, applying to the tribunal for an open market rent determination costs £47.
+
+**Correctness judge:** incorrect: Refused an answerable question (false refusal).
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-025
+
+**Question** (factual): How much notice do I need to give my landlord if I want to leave my periodic tenancy?
+
+**Gold evidence** (not in the top 10):
+> Your tenancy agreement should say how much notice you must give your landlord before you leave the property.
+
+The maximum notice a landlord can ask you for is 2 months.
+
+If your tenancy agreement does not say how much notice you must give, you need to give at least 2 months’ notice. (`assured-periodic-tenancies-tenants`)
+
+**Passages given to the model** (top 5):
+1. Private renting > Rent arrears > If you have an assured periodic tenancy
+2. Assured periodic tenancies: a guide for tenants > Ending a tenancy that started before 1 May 2026
+3. Renters’ Rights Act overview for tenants > Ending your tenancy
+4. Assured periodic tenancies: a guide for landlords > If the tenancy started before 1 May 2026 > If your tenant wants to end their tenancy
+5. Assured periodic tenancies: a guide for landlords > Dealing with antisocial behaviour > If the tenancy began before 1 May 2026
+
+**Answer:**
+
+> The notice you need to give depends on when your tenancy started.
+>
+> **If your tenancy started before 1 May 2026:**
+>
+> The notice period in your tenancy agreement still applies. For example, if your agreement says you only need to give one month's notice, you don't need to give more [2]. However, your landlord cannot ask you to give more than 2 months' notice [2].
+>
+> **If your tenancy started on or after 1 May 2026:**
+>
+> You need to give 2 months' notice [3]. You must give it in writing (for example, by letter, email or text) on the day when the rent is due or the day before the rent is due [3].
+>
+> **In both cases:**
+>
+> You and your landlord can agree in writing to end the tenancy earlier or have a shorter notice period [3][5]. You must continue to pay rent during the notice period [3].
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [2] Assured periodic tenancies: a guide for tenants - https://www.gov.uk/assured-periodic-tenancies-tenants
+> [3] Renters' Rights Act overview for tenants - https://www.gov.uk/guidance/renters-rights-act-overview-for-tenants
+> [5] Assured periodic tenancies: a guide for landlords - https://www.gov.uk/assured-tenancy-agreements-a-guide-for-landlords
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** Your tenancy agreement should say how much notice you must give, but a landlord can ask for no more than 2 months. If the agreement does not say, you need to give at least 2 months' notice.
+
+**Correctness judge:** partially_correct: The answer matches the reference for the older tenancy case: the agreement's notice period applies and a landlord cannot ask for more than 2 months. It does not give the reference's fallback, which is that if the agreement is silent you need at least 2 months' notice. Instead it adds a split by start date (before or after 1 May 2026) that the reference does not mention. For tenancies starting on or after that date it says 2 months, which is consistent with the reference's default. However, it implies a fixed rule for new tenancies and omits the agreement-silent case for older ones. The key facts are mostly present, but the missing fallback and the added date-based framing make it only partially correct.
+**Faithfulness judge:** 88% of claims supported; unsupported: If your tenancy started on or after 1 May 2026, you need to give 2 months' notice.
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-026
+
+**Question** (factual): My landlord wants to sell the house. How much notice do they have to give me under the new rules?
+
+**Gold evidence** (not in the top 10):
+> Tenants will benefit from a 12-month protected period at the beginning of a tenancy, during which landlords cannot evict them to move in or sell the property. Landlords will need to provide 4 months’ notice when using these grounds, giving tenants more time to find a new home, and reducing the risk of homelessness. (`guide-to-the-renters-rights-act`)
+
+**Passages given to the model** (top 5):
+1. Rent a room in your home > Ending a letting > Change of ownership
+2. Guide to the Renters’ Rights Act > Guide to the Renters’ Rights Act > Tenancy reform > What security does a tenant have under the new system?
+3. Notices of possession served from 1 May 2026: a guide for tenants who are renting from a private landlord > Stage 1: What to do when you are served with a notice of possession > Additional rules for individual possession grounds
+4. Assured periodic tenancies: a guide for tenants > If your landlord wants to end your tenancy
+5. Private renting for tenants: evictions in England > Rules your landlord must follow
+
+**Answer:**
+
+> Under the new rules, your landlord must give you **at least 4 months' notice** if they want to sell the property [2].
+>
+> However, there's an important protection: **your landlord cannot start the process to take back possession because they intend to sell during the first 12 months of your tenancy** [3]. They can give you notice of their intention to use this ground before the 12 months is up, but they cannot formally start possession proceedings until after 12 months have passed [3].
+>
+> So if you're in the first year of your tenancy, you have extra protection. After 12 months, your landlord can serve a notice of possession to sell, and they must give you at least 4 months to leave [2].
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [2] Guide to the Renters' Rights Act - https://www.gov.uk/government/publications/guide-to-the-renters-rights-act
+> [3] Notices of possession served from 1 May 2026: a guide for tenants who are renting from a private landlord - https://www.gov.uk/guidance/notices-of-possession-served-from-1-may-2026-a-guide-for-tenants-who-are-renting-from-a-private-landlord
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** Your landlord must give you 4 months' notice to evict you because they want to sell. They cannot evict you for this reason during the first 12 months of the tenancy.
+
+**Correctness judge:** correct: The answer states 4 months' notice for sale and that the landlord cannot evict on this ground during the first 12 months of the tenancy, matching the reference. The added nuance that notice can be given before 12 months is up but proceedings cannot start until after is plausible extra detail and doesn't contradict the key facts.
+**Faithfulness judge:** 80% of claims supported; unsupported: After 12 months, the landlord can serve a notice of possession to sell and must give at least 4 months to leave.
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-041
+
+**Question** (factual): Can my landlord let themselves in with their key when I'm not home without asking?
+
+**Gold evidence** (not in the top 10):
+> You should give your landlord access to the property to inspect it or carry out repairs. Your landlord has to give you at least 24 hours’ notice and visit at a reasonable time of day, unless it’s an emergency and they need immediate access. (`private-renting`)
+
+**Passages given to the model** (top 5):
+1. Notices of possession served from 1 May 2026: a guide for tenants who are renting from a private landlord > Mediation and dispute resolution > Finding a mediator
+2. Private renting for tenants: evictions in England > Harassment and illegal evictions > Harassment
+3. Notices of possession served before 1 May 2026: a guide for tenants who are renting from a private landlord > Notices of possession served before 1 May 2026: a guide for tenants who are renting from a private landlord
+4. Private renting for tenants: evictions in England > Eviction notices > Asking the court to change your payments
+5. Private renting > Document checks > If you cannot prove your right to rent
+
+**Answer:**
+
+> I can't find that in the guidance. I'd suggest checking GOV.UK directly or getting advice from Citizens Advice or Shelter, as they can advise on your landlord's rights of access to the property.
+>
+> Guidance retrieved: 2026-10-01
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** No. Your landlord must give you at least 24 hours’ notice and visit at a reasonable time of day, unless it is an emergency and they need immediate access.
+
+**Correctness judge:** incorrect: Refused an answerable question (false refusal).
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-043
+
+**Question** (factual): Is my landlord responsible for fixing the washing machine that came with the flat?
+
+**Gold evidence** (not in the top 10):
+> all appliances they supply are safe, for example cookers and kettles (`private-renting`)
+
+**Passages given to the model** (top 5):
+1. Private renting > Repairs > What your landlord must do
+2. Awaab’s Law Phase 1: Guidance for social landlords > Awaab’s Law: Guidance for social landlords - Timeframes for repairs in the social rented sector > 7 Making the property safe and supplementary preventative works > Scenario - Social landlord making a property safe and following up with preventative works
+3. Renting out your property > Making repairs > Common areas
+4. Smoke and Carbon Monoxide Alarm (Amendment) Regulations 2022: guidance for landlords and tenants > Smoke and Carbon Monoxide Alarm (Amendment) Regulations 2022: guidance for landlords and tenants > Frequently asked questions > Does replacing a battery count as a repair? Who is responsible for changing the batteries?
+5. Awaab’s Law Phase 1: Guidance for social landlords > Awaab’s Law: Guidance for social landlords - Timeframes for repairs in the social rented sector > 2 Scope of Awaab’s Law > 2.2 Buildings or land for which the landlord is responsible
+
+**Answer:**
+
+> I can't find that in the guidance. The passages explain what landlords must repair (like structure, heating, electrical wiring, and sanitary fittings), but they don't specifically address washing machines. I'd suggest checking your tenancy agreement to see if the washing machine is mentioned, or getting advice from Citizens Advice or Shelter.
+>
+> Guidance retrieved: 2026-10-01
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** The guidance says your landlord must make sure that any appliances they supply are safe. It does not say whether they must repair a supplied washing machine that has broken but is not unsafe.
+
+**Correctness judge:** incorrect: Refused an answerable question (false refusal).
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+### Correct passage retrieved but ranked too low (top 10, not in the passages given to the LLM)
+
+#### q-022
+
+**Question** (factual): Is a landlord allowed to put 'no DSS' in their advert?
+
+**Gold evidence** (first correct passage at rank 7):
+> It will address both overt discriminatory practices, such as ‘No DSS’ adverts, and situations where landlords or letting agents use other indirect practices in order to prevent someone entering into a tenancy. (`guide-to-the-renters-rights-act`)
+> You cannot discourage someone from entering a tenancy agreement because they get benefits. (`rental-discrimination-landlords`)
+
+**Passages given to the model** (top 5):
+1. Guide to the Renters’ Rights Act > Guide to the Renters’ Rights Act > Prohibiting rental discrimination > Won’t landlords just discriminate in less obvious ways?
+2. Assured periodic tenancies: a guide for tenants > Overview > How long the tenancy lasts > If the tenancy started before 1 May 2026
+3. Rent Repayment Orders offences: guidance for tenants > Letting or marketing in a restricted period
+4. Rental discrimination: a guide for landlords > If you're reported for rental discrimination > If you’re reported again
+5. Rental discrimination: a guide for landlords > If you're reported for rental discrimination
+
+**Answer:**
+
+> No, a landlord is not allowed to put 'no DSS' in their advert. This is a form of rental discrimination.
+>
+> The government is taking action to stop "overt discriminatory practices, such as 'no DSS' adverts" [1]. If a landlord does this, they can be fined up to £7,000 by their local council [5].
+>
+> If the advert remains online more than 28 days after being reported, the landlord can be fined an additional £7,000 every 28 days until it is removed [4].
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Guide to the Renters' Rights Act - https://www.gov.uk/government/publications/guide-to-the-renters-rights-act
+> [4] Rental discrimination: a guide for landlords - https://www.gov.uk/rental-discrimination-landlords
+> [5] Rental discrimination: a guide for landlords - https://www.gov.uk/rental-discrimination-landlords
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** No. The Renters' Rights Act tackles overt discriminatory practices such as 'No DSS' adverts, and landlords cannot discourage someone from entering a tenancy because they get benefits.
+
+**Correctness judge:** correct: The answer says No, a landlord cannot put 'no DSS' in an advert, and ties this to the Renters' Rights Act's action against overt discriminatory practices such as 'no DSS' adverts. This matches the reference. The extra detail on fines (£7,000, with further £7,000 every 28 days) is additional and does not contradict the reference. It does not explicitly state that landlords cannot discourage someone from a tenancy because they receive benefits, but the main point is covered.
+**Faithfulness judge:** 80% of claims supported; unsupported: If the advert remains online more than 28 days after being reported, the landlord can be fined an additional £7,000 every 28 days until it is removed.
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-045
+
+**Question** (factual): I'm a housing association tenant with mould. How quickly does my landlord have to investigate under Awaab's Law?
+
+**Gold evidence** (first correct passage at rank 9):
+> If a social landlord has reason to believe a home is affected by a significant hazard, (see Section 3.2) they must investigate the hazard within 10 working days. (`awaabs-law-guidance-for-social-landlords`)
+> In these circumstances the social landlord must investigate within 24 hours of social landlords forming that belief. (`awaabs-law-guidance-for-social-landlords`)
+
+**Passages given to the model** (top 5):
+1. Awaab’s Law Phase 1: Guidance for social landlords > Awaab’s Law: Guidance for social landlords - Timeframes for repairs in the social rented sector > 1 Introduction > 1.4 Awaab’s Law requirements on social landlords
+2. Awaab’s Law Phase 1: Guidance for social landlords > Awaab’s Law: Guidance for social landlords - Timeframes for repairs in the social rented sector > 1 Introduction > 1.4 Awaab’s Law requirements on social landlords
+3. Awaab’s Law Phase 1: Guidance for social landlords > Awaab’s Law: Guidance for social landlords - Timeframes for repairs in the social rented sector > 1 Introduction > 1.4 Awaab’s Law requirements on social landlords
+4. Awaab’s Law Phase 1: Guidance for social landlords > Awaab’s Law: Guidance for social landlords - Timeframes for repairs in the social rented sector > 4 Investigating whether there is a significant or emergency hazard > 4.1.1 Standard investigations
+5. Awaab’s Law Phase 1: Guidance for social landlords > Awaab’s Law: Guidance for social landlords - Timeframes for repairs in the social rented sector > 7 Making the property safe and supplementary preventative works
+
+**Answer:**
+
+> Under Awaab's Law, your housing association landlord must investigate mould within **10 working days** of becoming aware of it [1][4].
+>
+> However, the timeframe depends on how serious the mould is:
+>
+> - **Emergency hazard**: If the mould is an emergency hazard, the landlord must investigate within **24 hours** [1].
+> - **Significant hazard**: If it's a significant hazard (but not an emergency), the investigation must be completed within **10 working days** [1][4].
+>
+> For the 10-day timeline, day one starts the day after your landlord becomes aware of the problem [4].
+>
+> After the investigation is complete, your landlord must give you a written summary of the findings within 3 working days [1].
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Awaab's Law Phase 1: Guidance for social landlords - https://www.gov.uk/government/publications/awaabs-law-guidance-for-social-landlords
+> [4] Awaab's Law Phase 1: Guidance for social landlords - https://www.gov.uk/government/publications/awaabs-law-guidance-for-social-landlords
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** Where the mould is a significant hazard, your social landlord must investigate within 10 working days. If they have reasonable grounds to believe it is an emergency hazard, they must investigate within 24 hours of forming that belief.
+
+**Correctness judge:** correct: The answer gives 10 working days for significant hazards and 24 hours for emergency hazards, matching the reference. Its opening line is slightly loose, saying 10 working days generally, but it then clarifies the split by hazard type. The extra details on how day one is counted and the 3-working-day written summary are consistent with the guidance and do not contradict the reference.
+**Faithfulness judge:** 80% of claims supported; unsupported: Under Awaab's Law, a housing association landlord must investigate mould within 10 working days of becoming aware of it.
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-059
+
+**Question** (factual): Can my landlord make me pay for pet insurance if they agree I can have a dog?
+
+**Gold evidence** (first correct passage at rank 9):
+> You can choose to use any of these things, but your landlord is not allowed to make you pay for a loan, pay for insurance or start a contract for a service as part of your tenancy. (`tenant-fees-act-2019-guidance-for-tenants`)
+
+**Passages given to the model** (top 5):
+1. Assured periodic tenancies: a guide for tenants > If you want a pet to live with you > Damage from pets
+2. Assured periodic tenancies: a guide for tenants > If you want a pet to live with you > When a landlord can refuse a request for a pet
+3. Renters’ Rights Act overview for tenants > Other changes from 1 May 2026 > Rent in advance
+4. Assured periodic tenancies: a guide for tenants > Rent increases > If your landlord gave you notice of a rent increase before 1 May 2026 > If your landlord gave you notice using a rent review clause
+5. Assured periodic tenancies: a guide for landlords > If a tenant wants a pet to live with them > When you can refuse a request for a pet
+
+**Answer:**
+
+> I can't find that in the guidance.
+>
+> The passages explain that if your pet causes damage, your landlord can claim through your pet insurance if you have any [1], but they don't say whether a landlord can require you to get pet insurance as a condition of allowing a pet.
+>
+> For a definitive answer on this, you should check GOV.UK directly or get advice from Citizens Advice or Shelter.
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Assured periodic tenancies: a guide for tenants - https://www.gov.uk/assured-periodic-tenancies-tenants
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** No. You can choose to buy insurance, but your landlord is not allowed to make you pay for insurance as part of your tenancy.
+
+**Correctness judge:** incorrect: Refused an answerable question (false refusal).
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-061
+
+**Question** (factual): What's the fine for a landlord running an HMO without a licence?
+
+**Gold evidence** (first correct passage at rank 10):
+> You could get an unlimited fine for renting out an unlicensed HMO. (`house-in-multiple-occupation-licence`)
+
+**Passages given to the model** (top 5):
+1. Rent Repayment Orders offences: guidance for tenants > Unlicensed HMO or house
+2. Rent Repayment Orders offences: guidance for tenants > Unlicensed HMO or house > Finding out if your landlord has committed a licensing offence
+3. Rent Repayment Orders offences: guidance for tenants > Unlicensed HMO or house > Landlord defences for being unlicensed
+4. Rent Repayment Orders offences: guidance for tenants > Unlicensed HMO or house > Additional defences for superior landlords > The landlord took all reasonably practicable steps
+5. House in multiple occupation licence > 
+
+**Answer:**
+
+> I can't find that in the guidance. Please check GOV.UK directly or contact Citizens Advice or Shelter for information about fines for unlicensed HMOs.
+>
+> The passages explain when an HMO needs to be licensed and what tenants can do about unlicensed properties (such as applying for a Rent Repayment Order), but they don't contain information about the specific fines landlords face.
+>
+> Guidance retrieved: 2026-10-01
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** A landlord can get an unlimited fine for renting out an unlicensed HMO.
+
+**Correctness judge:** incorrect: Refused an answerable question (false refusal).
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-068
+
+**Question** (factual): Will my fixed-term tenancy automatically become periodic on 1 May 2026?
+
+**Gold evidence** (first correct passage at rank 8):
+> On 1 May 2026, all assured tenancies, including assured shorthold tenancies, automatically became rolling tenancies. Any end date in your tenancy agreement will no longer apply. (`assured-periodic-tenancies-tenants`)
+
+**Passages given to the model** (top 5):
+1. Assured periodic tenancies: a guide for tenants > Ending a tenancy that started before 1 May 2026 > If you had a fixed term tenancy with an end date on or after 1 May 2026
+2. Assured periodic tenancies: a guide for landlords > If the tenancy started before 1 May 2026 > If your tenant had a fixed term tenancy and the end date was before 1 May 2026
+3. Renters’ Rights Act overview for tenants > 
+4. Private renting > Rent arrears > If you have an assured periodic tenancy
+5. Assured periodic tenancies: a guide for tenants > Ending a tenancy that started before 1 May 2026
+
+**Answer:**
+
+> Yes, if your fixed-term tenancy started before 1 May 2026, it will automatically become an assured periodic tenancy on that date [3].
+>
+> However, the notice period you need to give to end your tenancy depends on when your fixed term was due to end:
+>
+> - **If your fixed term ends on or after 1 May 2026**: The notice period in your tenancy agreement still applies [1].
+>
+> - **If your fixed term ended before 1 May 2026**: It depends on what your tenancy agreement says. If it has rules about what happens after the fixed term ends (for example, that it automatically becomes a rolling tenancy), the notice period in your agreement still applies. If your agreement doesn't say what happens after the fixed term ends, the notice period no longer applies, and you'll need to follow the process for assured periodic tenancies [1].
+>
+> Assured periodic tenancies run on a rolling basis (for example, weekly or monthly) rather than having a fixed end date [3].
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Assured periodic tenancies: a guide for tenants - https://www.gov.uk/assured-periodic-tenancies-tenants
+> [3] Renters' Rights Act overview for tenants - https://www.gov.uk/guidance/renters-rights-act-overview-for-tenants
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** Yes. On 1 May 2026, all assured tenancies, including assured shorthold tenancies, automatically became rolling tenancies, and any end date in the agreement no longer applies. You did not need to do anything.
+
+**Correctness judge:** partially_correct: The answer says yes, the tenancy automatically becomes periodic on 1 May 2026, which matches the reference's main point. But it adds a condition, 'if your fixed-term tenancy started before 1 May 2026', which the reference does not give. It also says the notice period in the agreement still applies for fixed terms ending on or after 1 May, which conflicts with the reference's statement that any end date in the agreement no longer applies. It also omits that the tenant did not need to do anything, and it uses the future tense ('will') although the date has passed. The core conclusion is right, but the caveats are confusing and partly contradict the reference.
+**Faithfulness judge:** 100% of claims supported
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+### Correct passage given to the model, but it ignored or misread it
+
+#### q-002
+
+**Question** (factual): What's the maximum deposit a landlord can ask for if the rent is £1,000 a month?
+
+**Gold evidence** (first correct passage at rank 4):
+> If the annual rent is below £50,000 the maximum deposit is up to 5 weeks’ rent (`tenant-fees-act-2019-guidance-for-tenants`)
+
+**Passages given to the model** (top 5):
+1. Private renting > Deposits
+2. Assured periodic tenancies: a guide for landlords > Rent in advance and deposits > Asking tenants to pay a deposit
+3. Assured periodic tenancies: a guide for tenants > Rent in advance and deposits
+4. Tenant Fees Act 2019: guidance for tenants > Rent ✓
+5. Tenant Fees Act 2019: guidance for tenants > Refundable holding deposit
+
+**Answer:**
+
+> If the rent is £1,000 a month, the annual rent is £12,000. Since this is less than £50,000, the maximum deposit your landlord can ask for is **up to 5 weeks' rent** [1][3].
+>
+> In your case, that would be up to £5,000.
+>
+> Your landlord must keep this deposit safe using a government-approved tenancy deposit protection scheme [1].
+>
+> Your landlord can also ask for a separate holding deposit of up to one week's rent (£1,000) to reserve the property while they carry out checks [1].
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Private renting - https://www.gov.uk/private-renting
+> [3] Assured periodic tenancies: a guide for tenants - https://www.gov.uk/assured-periodic-tenancies-tenants
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** Rent of £1,000 a month is below £50,000 a year, so the maximum tenancy deposit is 5 weeks' rent.
+
+**Correctness judge:** partially_correct: The answer correctly states the maximum deposit is 5 weeks' rent because annual rent (£12,000) is under £50,000. However, it makes a calculation error: 5 weeks' rent on £1,000 a month is about £1,154 (£12,000/52 x 5), not £5,000. It also gives the holding deposit as £1,000 when one week's rent is about £231. The main conclusion (5 weeks' rent) matches, but the incorrect figures are significant errors that would mislead the user.
+**Faithfulness judge:** 67% of claims supported; unsupported: In this case the maximum deposit would be up to £5,000.; One week's rent in this case is £1,000.
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-006
+
+**Question** (factual): I moved out a month ago and my landlord still hasn't returned my deposit. How long do they have to pay it back once we've agreed the amount?
+
+**Gold evidence** (first correct passage at rank 1):
+> Your landlord must return your deposit within 10 days of you both agreeing how much you’ll get back. (`tenancy-deposit-protection`)
+
+**Passages given to the model** (top 5):
+1. Tenancy deposit protection > Overview > At the end of your tenancy ✓
+2. Private renting > Deposits > Getting your deposit back
+3. Tenant Fees Act 2019: guidance for tenants > Refundable holding deposit
+4. Tenancy deposit protection > If your landlord does not protect your deposit > What happens next
+5. Rent Repayment Orders: guidance for tenants > When to apply for an RRO
+
+**Answer:**
+
+> Your landlord must return your deposit within 10 days of you both agreeing how much you'll get back [1].
+>
+> Since a month has passed, your landlord is now overdue. Here's what you can do:
+>
+> **Contact the tenancy deposit protection scheme** - Get in touch with the TDP scheme your landlord used. You can do this if your landlord won't give your deposit back or you cannot get in touch with them [2].
+>
+> **Raise a dispute** - If your deposit is held by one of the approved TDP schemes (Tenancy Deposit Scheme, Deposit Protection Service, or MyDeposits), you can 'raise a dispute' to get your deposit back. The TDP scheme will refund your deposit if the dispute resolution service agrees. There may be a time limit, so contact them as soon as possible [4].
+>
+> **Get free advice** - You can get free advice on getting back your deposit from Citizens Advice [2].
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Tenancy deposit protection - https://www.gov.uk/tenancy-deposit-protection
+> [2] Private renting - https://www.gov.uk/private-renting
+> [4] Tenancy deposit protection - https://www.gov.uk/tenancy-deposit-protection
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** Your landlord must return the deposit within 10 days of you both agreeing how much you will get back.
+
+**Correctness judge:** partially_correct: The answer states the key fact correctly: the landlord must return the deposit within 10 days of both parties agreeing the amount. However, it then says the landlord is 'now overdue' because a month has passed. That is unsupported, since the 10-day clock only starts once the amount is agreed, and the user has not said it has been. This is a minor error that does not change the main conclusion. The remaining advice about raising a dispute and contacting the scheme is accurate extra detail.
+**Faithfulness judge:** 86% of claims supported; unsupported: Since a month has passed, your landlord is now overdue.
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-009
+
+**Question** (factual): Is the letting agent allowed to charge me a fee for doing a reference check?
+
+**Gold evidence** (first correct passage at rank 3):
+> banned tenant fees you paid to a landlord or letting agent, for example fees for a credit check (`housing-tribunals`)
+> If your landlord asks you for a fee that is not allowed, you should refuse to pay it and you should keep any evidence. (`tenant-fees-act-2019-guidance-for-tenants`)
+
+**Passages given to the model** (top 5):
+1. Tenant Fees Act 2019: guidance for tenants > 
+2. Checking your tenant's right to rent > Agents and subletting
+3. Tenant Fees Act 2019: guidance for tenants > Prohibited payments ✓
+4. Assured periodic tenancies: a guide for tenants > Rent in advance and deposits
+5. Assured periodic tenancies: a guide for tenants > Rent in advance and deposits > How to complain if you’ve been asked for rent in advance > If you do not want to speak to the local council
+
+**Answer:**
+
+> I can't find that in the guidance.
+>
+> The passages list the fees landlords and letting agents are allowed to charge [1], but they don't specifically mention reference checks. To get a clear answer, check GOV.UK directly or contact Citizens Advice or Shelter for advice.
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Tenant Fees Act 2019: guidance for tenants - https://www.gov.uk/guidance/tenant-fees-act-2019-guidance-for-tenants
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** No, fees such as credit check fees charged by a landlord or letting agent are banned tenant fees. If you are asked for a fee that is not allowed, you should refuse to pay it and keep any evidence.
+
+**Correctness judge:** incorrect: Refused an answerable question (false refusal).
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-010
+
+**Question** (factual): I lost my front door key. Can my landlord charge me for a replacement, and how much?
+
+**Gold evidence** (first correct passage at rank 1):
+> You can be charged the cost of replacing a key or other security device. (`tenant-fees-act-2019-guidance-for-tenants`)
+> Your landlord must provide evidence in writing to show the costs of replacements are reasonable. (`tenant-fees-act-2019-guidance-for-tenants`)
+
+**Passages given to the model** (top 5):
+1. Tenant Fees Act 2019: guidance for tenants > Default fees > Replacement keys, security devices or fobs ✓
+2. Tenant Fees Act 2019: guidance for tenants > Fees for tenancy changes
+3. Tenant Fees Act 2019: guidance for tenants > Prohibited payments
+4. Tenant Fees Act 2019: guidance for tenants > 
+5. Smoke and Carbon Monoxide Alarm (Amendment) Regulations 2022: guidance for landlords and tenants > Smoke and Carbon Monoxide Alarm (Amendment) Regulations 2022: guidance for landlords and tenants > Frequently asked questions > Does the penalty of up to £5,000 apply per landlord, or per breach?
+
+**Answer:**
+
+> Yes, your landlord can charge you for a replacement key. [1]
+>
+> However, your landlord must provide written evidence showing that the cost is reasonable. [1] There is no fixed maximum amount stated in the guidance – the charge must simply be a reasonable cost for replacing the key.
+>
+> If you think the charge is unreasonable, you can report your landlord to your local council. [2]
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Tenant Fees Act 2019: guidance for tenants - https://www.gov.uk/guidance/tenant-fees-act-2019-guidance-for-tenants
+> [2] Tenant Fees Act 2019: guidance for tenants - https://www.gov.uk/guidance/tenant-fees-act-2019-guidance-for-tenants
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** Yes, you can be charged the cost of replacing a lost key. Your landlord must give written evidence showing the replacement cost is reasonable.
+
+**Correctness judge:** correct: The answer states the landlord can charge for a replacement key and must provide written evidence that the cost is reasonable, matching the reference. The added points about no fixed maximum and reporting to the local council are accurate and do not contradict the reference.
+**Faithfulness judge:** 75% of claims supported; unsupported: If you think the charge is unreasonable, you can report your landlord to your local council.
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+#### q-012
+
+**Question** (factual): I want to add my partner to the tenancy. What's the most the agent can charge me for changing the agreement?
+
+**Gold evidence** (first correct passage at rank 1):
+> When you ask for a change to the tenancy agreement (for example, to add or remove a person) you can be charged up to £50 for the work involved or a higher amount if the work costs more. (`tenant-fees-act-2019-guidance-for-tenants`)
+
+**Passages given to the model** (top 5):
+1. Tenant Fees Act 2019: guidance for tenants > Fees for tenancy changes ✓
+2. Tenant Fees Act 2019: guidance for tenants > 
+3. Assured periodic tenancies: a guide for tenants > Overview > How long the tenancy lasts > If the tenancy started before 1 May 2026
+4. Assured periodic tenancies: a guide for tenants > Rent and other payments > Other payments you may be asked to make
+5. Assured periodic tenancies: a guide for landlords > Overview > How long the tenancy lasts > If the tenancy started before 1 May 2026
+
+**Answer:**
+
+> Your agent can charge you up to £50 for adding your partner to the tenancy agreement [1].
+>
+> However, if your agent asks you to pay more than £50, they must provide proof that the work costs more than this amount. If you think the costs are not reasonable, you can report your agent to your local council [1].
+>
+> Guidance retrieved: 2026-10-01
+>
+> Sources:
+> [1] Tenant Fees Act 2019: guidance for tenants - https://www.gov.uk/guidance/tenant-fees-act-2019-guidance-for-tenants
+>
+> This is general information from GOV.UK guidance, not legal advice.
+
+**Reference answer:** You can be charged up to £50 for changing the tenancy agreement, such as adding a person. A higher amount is allowed only if the work actually costs more.
+
+**Correctness judge:** correct: The answer states the £50 cap for changing the tenancy agreement (adding a partner) and notes a higher amount is allowed only if the agent can prove the work actually costs more. This matches the reference. The extra detail about reporting to the local council is accurate and does not contradict it.
+**Faithfulness judge:** 33% of claims supported; unsupported: The agent can charge up to £50 for adding your partner to the tenancy agreement.; If the agent asks you to pay more than £50, they must provide proof that the work costs more than this amount.
+
+**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
+
+**Proposed fix:** _TODO_
+
+### Judge error: the answer was actually fine
+
+_TODO: move examples here after checking them._
+
+### Reference answer wrong (the test set was not human-reviewed)
+
+_TODO: move examples here after checking them._
+
+## Conclusions
+
+_TODO: the main weaknesses, in order of impact, and which fixes to try first._

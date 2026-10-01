@@ -18,6 +18,11 @@ answer correct, faithful to its sources, and does it refuse when it should?).
 | `coverage.md` | Progress against the target mix, and documents with no questions yet |
 | `corpus_overview.md` | Titles and headings of every document, used to plan questions |
 | `smoke_questions.json` | 10 informal smoke-test questions (not part of the test set) |
+| `configs.yaml` | The experiments compared in the evaluation |
+| `run_eval.py` | Runs the evaluation (see below) |
+| `results/summary.csv` | One row of metrics per experiment and split |
+| `RESULTS.md`, `ERROR_ANALYSIS.md` | Results table and error analysis |
+| `judge_labels.jsonl`, `judge_agreement.md` | My labels for 30 answers, and agreement with the judge |
 | `drafts.jsonl` | Unreviewed LLM drafts (git-ignored; never used directly) |
 
 ## Item format
@@ -43,14 +48,17 @@ The schema (`src/rag/eval_schema.py`) also enforces the rules between fields: un
 items have no evidence; every other type needs at least one quote; multi-passage items need
 at least two different quotes; quotes are at least 20 characters; unknown fields are errors.
 
-## Question types and target mix
+## Question types
 
-| Type | Target | What it tests |
+| Type | Count (dev + held-out) | What it tests |
 | --- | ---: | --- |
-| `factual` | 60 | One fact from one passage: the core retrieval and answering task |
-| `multi_passage` | 20 | Needs two or more passages combined, e.g. a rule and its exception |
-| `informal` | 10 | Casual or vague wording ("can my landlord just kick me out?"), unlike the document's wording |
-| `unanswerable` | 10 | Plausible questions the guidance does not answer; the system should refuse |
+| `factual` | 80 (68 + 12) | One fact from one passage: the core retrieval and answering task |
+| `multi_passage` | 25 (21 + 4) | Needs two or more passages combined, e.g. a rule and its exception |
+| `informal` | 12 (10 + 2) | Casual or vague wording ("can my landlord just kick me out?"), unlike the document's wording |
+| `unanswerable` | 13 (11 + 2) | Plausible questions the guidance does not answer; the system should refuse |
+
+130 questions in total: 110 dev and 20 held-out. The original target was 100 (60/20/10/10);
+all 130 generated questions were kept, in roughly the same proportions.
 
 Most questions are factual because single-fact lookup is what users mostly need, and it gives
 the most stable retrieval metrics. Multi-passage questions test whether retrieval finds all
@@ -161,6 +169,64 @@ python scripts/split_questions.py --dry-run       # once the 100 are written, pr
 python scripts/split_questions.py                 # ...and assign the held-out split
 ```
 
+## Running the evaluation
+
+Results: [`RESULTS.md`](RESULTS.md). Failures: [`ERROR_ANALYSIS.md`](ERROR_ANALYSIS.md).
+
+```bash
+python eval/run_eval.py                         # retrieval metrics, every config (free)
+python eval/run_eval.py --generate dense_baseline,hybrid_rerank_bge   # + answers and judging
+python scripts/judge_agreement.py --config hybrid_rerank_bge          # check the judge
+python scripts/make_results_table.py            # -> RESULTS.md
+python scripts/error_analysis.py --config hybrid_rerank_bge           # -> ERROR_ANALYSIS.md
+```
+
+**Experiments** (`configs.yaml`) each change **one setting** from the experiment they are
+compared with (retrieval method, then reranker, chunk size and embedding model), so any
+difference can be attributed to that one change. Changing two things at once would make it
+impossible to tell which one helped. Each chunk size and embedding model gets its own index,
+built automatically; gold evidence is mapped to that index's chunks at run time.
+
+**Retrieval metrics** (every config, no LLM): **Recall@1 / Recall@5**, the share of answerable
+questions with a correct chunk in the top 1 / top 5; **MRR**, the mean of 1 / rank of the
+first correct chunk (0 if not in the top 10); and, for multi-passage questions, **evidence
+recall@5**, the share of all their evidence passages found in the top 5. The ablation table
+gives 95% paired bootstrap intervals for each difference: the same questions are resampled
+5,000 times, so differences smaller than the noise are visible as such.
+
+**Generation metrics** (only for the most promising configs, because the judge costs money):
+
+- **Faithfulness:** an LLM judge splits the answer into factual claims and checks each against
+  the retrieved passages (not against general knowledge). Score = share of claims supported;
+  the judge's reasoning is kept for every answer.
+- **Correctness:** an LLM judge grades the answer against the reference answer: correct (1),
+  partially correct (0.5) or incorrect (0). Refusing an answerable question is incorrect.
+- **Refusal accuracy:** share of unanswerable questions where the system said it could not
+  find the answer. **False refusal rate:** share of answerable questions it refused.
+- **Latency:** median and 95th percentile per stage (dense, BM25, fusion, rerank,
+  generation, total), measured on a laptop CPU. Cached answers keep the latency of the
+  original call.
+
+**The judge** is a different, stronger model than the one answering (Claude Haiku 4.5
+answers; the judge model is recorded with the results). An LLM judge can be confidently
+wrong, too lenient, or biased towards answers that sound like its own writing, so its
+verdicts are **checked against my own labels** on 30 randomly sampled answers
+(`scripts/judge_agreement.py`). I label each answer before seeing the judge's verdict, and
+faithfulness before seeing the reference answer, so neither can anchor my judgement.
+Agreement is reported as percentage agreement and **Cohen's kappa** (agreement corrected for
+chance); scores from a judge with kappa below 0.6 are flagged as not trustworthy.
+
+**Reproducibility:** every LLM call is cached on disk, keyed by a hash of the model, prompt
+and parameters, so reruns are free and return identical results; random seeds are fixed;
+results record the corpus fingerprint, prompt version and full configuration.
+
+**The held-out split** is run once, for the final configuration only:
+`python eval/run_eval.py --heldout --configs NAME --generate NAME`. A second run is refused
+unless forced with a reason, which is logged in `results/heldout_runs.jsonl`. Running it
+again after seeing its results would turn it into another dev set: any choice made after
+looking at it would be tuned to those 20 questions, and its score would stop being an honest
+estimate for new questions.
+
 ## Status of human review
 
 The 130 questions, quotes and reference answers have **not** been reviewed one by one by a
@@ -184,11 +250,16 @@ Reviewing the set (or a random sample, to estimate its error rate) with
   scores carry unknown noise.
 - **One generating model.** Questions, quotes and reference answers all come from one model
   (`claude-opus-5-5`), so they reflect its reading of the guidance and its idea of what
-  tenants ask. A different family of model judges the answers would reduce shared bias, but
-  the judge in this project is also a Claude model.
+  tenants ask. The answering model and the judge are also Claude models; a judge from a
+  different model family would reduce any shared bias.
 - **Written from topics, not real user logs.** The persona step avoids copying the
   documents' wording, but the questions are still imagined, not collected from real tenants.
 - **Point in time.** Reference answers describe the guidance as retrieved on 2026-10-01.
+- **One gold passage per question.** The guidance often states the same rule in several
+  places, but each question has one gold quote, so retrieving a different passage that also
+  answers it counts as a miss. Recall is therefore an underestimate: in one config, 24 of
+  the 32 misses at rank 5 had the right document in the top 5. Correctness, judged on the
+  actual answer, is not affected.
 - **Size.** 130 questions (110 dev, 20 held-out) give rough estimates: on 20 held-out
   questions, one item is 5 percentage points, so small differences between setups are not
   meaningful.
