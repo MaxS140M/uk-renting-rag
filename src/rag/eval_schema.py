@@ -20,11 +20,19 @@ Split = Literal["dev", "heldout"]
 # "max": written by me. "llm_draft_reviewed": started as an LLM draft, then reviewed and
 # edited by me. "llm_draft": unreviewed draft, only allowed in eval/drafts.jsonl.
 # "example": format examples, excluded from all metrics.
-Author = Literal["max", "llm_draft_reviewed", "llm_draft", "example"]
+# "llm_generated": LLM-generated and automatically checked (quotes verified word for word),
+# but NOT individually reviewed by a person.
+Author = Literal["max", "llm_draft_reviewed", "llm_generated", "llm_draft", "example"]
 
 QUESTION_TYPES: tuple[str, ...] = QuestionType.__args__
 MIN_QUOTE_CHARS = 20  # long enough that a quote pins down one specific statement
-ID_PREFIX = {"max": "q", "llm_draft_reviewed": "q", "example": "ex", "llm_draft": "draft"}
+ID_PREFIX = {
+    "max": "q",
+    "llm_draft_reviewed": "q",
+    "llm_generated": "q",
+    "example": "ex",
+    "llm_draft": "draft",
+}
 _ID_RE = re.compile(r"^(q|ex|draft)-(\d{3,})$")
 
 
