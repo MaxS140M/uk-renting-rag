@@ -23,6 +23,13 @@ jobs:
           TORCH_VERSION=$(grep -E '^torch==' requirements.txt | cut -d= -f3)
           pip install "torch==${TORCH_VERSION}" --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
+          pip install -e . --no-deps
+
+      # Chunking tests download the embedding model's tokenizer; cache it between runs.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: huggingface-${{ hashFiles('src/rag/config.py') }}
 
       - name: Lint
         run: |
