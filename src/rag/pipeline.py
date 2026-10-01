@@ -13,9 +13,10 @@ from dataclasses import asdict, dataclass, field
 from functools import lru_cache
 
 from rag.config import RAGConfig
+from rag.factory import build_retriever
 from rag.generate import Generator
 from rag.prompts import PROMPT_VERSION, REFUSAL_TEXT
-from rag.retrieval import RetrievalResult, Retriever, get_retriever
+from rag.retrieval import RetrievalResult, Retriever
 
 _CITATION_RE = re.compile(r"\[(\d+(?:\s*,\s*\d+)*)\]")
 
@@ -39,11 +40,14 @@ class AnswerResult:
     sources: list[Source]  # cited passages, in order of first citation
     retrieved: list[RetrievalResult]  # everything passed to the LLM, in rank order
     refused: bool  # True if the model said the guidance does not contain the answer
-    latency_ms: dict[str, float]  # retrieval, generation and total
+    # Per stage in ms: whichever of dense, bm25, fusion and rerank ran, plus retrieval
+    # (all retrieval stages together), generation and total.
+    latency_ms: dict[str, float]
     model: str | None
     prompt_version: str
     stop_reason: str | None = None
     usage: dict[str, int] = field(default_factory=dict)
+    config: dict = field(default_factory=dict)  # the full RAGConfig that produced this
 
     @property
     def retrieved_chunk_ids(self) -> list[str]:
@@ -88,19 +92,22 @@ class RAGPipeline:
         generator: Generator | None = None,
     ) -> None:
         self.config = config or RAGConfig()
-        self.retriever = retriever or get_retriever(self.config)
+        self.retriever = retriever or build_retriever(self.config)
         self.generator = generator or Generator(self.config)
 
-    def retrieve(self, question: str) -> list[RetrievalResult]:
+    def retrieve(
+        self, question: str, timings: dict[str, float] | None = None
+    ) -> list[RetrievalResult]:
         """Retrieval only, with no LLM call: cheap enough to run many times for evaluation."""
-        return self.retriever.retrieve(question, self.config.top_k)
+        return self.retriever.retrieve(question, self.config.final_k, timings)
 
     def answer(self, question: str) -> AnswerResult:
         total_start = time.perf_counter()
 
+        timings: dict[str, float] = {}
         start = time.perf_counter()
-        results = self.retrieve(question)
-        retrieval_ms = _ms(start)
+        results = self.retrieve(question, timings)
+        timings["retrieval"] = _ms(start)
 
         if not results:  # nothing to ground an answer in, so do not call the LLM at all
             return AnswerResult(
@@ -109,18 +116,15 @@ class RAGPipeline:
                 sources=[],
                 retrieved=[],
                 refused=True,
-                latency_ms={
-                    "retrieval": retrieval_ms,
-                    "generation": 0.0,
-                    "total": _ms(total_start),
-                },
+                latency_ms={**timings, "generation": 0.0, "total": _ms(total_start)},
                 model=None,
                 prompt_version=PROMPT_VERSION,
+                config=self.config.to_dict(),
             )
 
         start = time.perf_counter()
         generation = self.generator.generate(question, results)
-        generation_ms = _ms(start)
+        timings["generation"] = _ms(start)
 
         refused = is_refusal(generation.text)
         return AnswerResult(
@@ -129,11 +133,7 @@ class RAGPipeline:
             sources=[] if refused else cited_sources(generation.text, results),
             retrieved=results,
             refused=refused,
-            latency_ms={
-                "retrieval": retrieval_ms,
-                "generation": generation_ms,
-                "total": _ms(total_start),
-            },
+            latency_ms={**timings, "total": _ms(total_start)},
             model=generation.model,
             prompt_version=PROMPT_VERSION,
             stop_reason=generation.stop_reason,
@@ -141,6 +141,7 @@ class RAGPipeline:
                 "input_tokens": generation.input_tokens,
                 "output_tokens": generation.output_tokens,
             },
+            config=self.config.to_dict(),
         )
 
 

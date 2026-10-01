@@ -14,7 +14,10 @@ from rag.retrieval import DenseRetriever, RetrievalResult
 
 @pytest.fixture
 def results(chunks) -> list[RetrievalResult]:
-    return [RetrievalResult.from_chunk(c, 1.0 - i / 10, i + 1) for i, c in enumerate(chunks[:3])]
+    return [
+        RetrievalResult.from_chunk(c, 1.0 - i / 10, i + 1, "dense")
+        for i, c in enumerate(chunks[:3])
+    ]
 
 
 def make_pipeline(loaded_index, embedder, client, **config_overrides) -> RAGPipeline:
@@ -91,7 +94,7 @@ def test_missing_api_key_gives_a_clear_error(monkeypatch):
 
 def test_answer_returns_structured_result(loaded_index, embedder, fake_client_factory):
     client = fake_client_factory("Within 30 days [1]. Use an approved scheme [1][2].")
-    pipeline = make_pipeline(loaded_index, embedder, client, top_k=3)
+    pipeline = make_pipeline(loaded_index, embedder, client, final_k=3)
 
     result = pipeline.answer("How long does my landlord have to protect my deposit?")
 
@@ -101,7 +104,8 @@ def test_answer_returns_structured_result(loaded_index, embedder, fake_client_fa
     assert [s.number for s in result.sources] == [1, 2]
     assert result.sources[0].url == result.retrieved[0].url
     assert result.refused is False
-    assert set(result.latency_ms) == {"retrieval", "generation", "total"}
+    assert set(result.latency_ms) == {"dense", "retrieval", "generation", "total"}
+    assert result.config["retrieval_mode"] == "dense"
     assert result.latency_ms["total"] >= result.latency_ms["retrieval"]
     assert result.prompt_version
     assert result.to_dict()["retrieved_chunk_ids"] == result.retrieved_chunk_ids
@@ -117,7 +121,7 @@ def test_refusal_is_detected_and_has_no_sources(loaded_index, embedder, fake_cli
 
 def test_retrieval_only_never_calls_the_llm(loaded_index, embedder, fake_client_factory):
     client = fake_client_factory()
-    pipeline = make_pipeline(loaded_index, embedder, client, top_k=2)
+    pipeline = make_pipeline(loaded_index, embedder, client, final_k=2)
     assert len(pipeline.retrieve("deposit")) == 2
     assert client.messages.calls == []
 
