@@ -1,8 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "uk-renting-rag"
 version = "0.1.0"
 description = "RAG question-answering assistant over UK GOV.UK renting and tenancy guidance."
 requires-python = ">=3.11"
+
+# Dependencies are pinned in requirements.txt; the package itself is installed with
+# `pip install -e .` so that scripts and tests can `import rag`.
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [tool.ruff]
 line-length = 100
