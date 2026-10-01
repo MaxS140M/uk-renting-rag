@@ -220,7 +220,9 @@ def type_counts(items: Iterable[EvalItem]) -> Counter:
 # --- Validation -------------------------------------------------------------------------------
 
 _UNANSWERABLE_RE = re.compile(
-    r"(does not|doesn't|do not|don't|not) (cover|answer|say)|can't find|cannot find|"
+    r"(does not|doesn't|do not|don't|not) "
+    r"(cover|answer|say|explain|give|provide|mention|state|include)|"
+    r"can't find|cannot find|"
     r"not in the guidance|no information",
     re.IGNORECASE,
 )

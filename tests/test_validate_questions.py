@@ -137,3 +137,16 @@ def test_script_exit_codes(tmp_path):
         f.write(json.dumps({"id": "q-003", "question": "Broken?"}) + "\n")
     broken = run_script(path, "--skip-chunk-check")
     assert broken.returncode == 1 and "line 3" in broken.stdout
+
+
+@pytest.mark.parametrize(
+    "answer",
+    [
+        "The guidance does not explain which scheme covers Northern Ireland.",
+        "The guidance does not give current market rents for Leeds.",
+        "I can't find that in the guidance.",
+    ],
+)
+def test_other_ways_of_saying_not_covered_are_accepted(docs, answer):
+    unanswerable = item(question_type="unanswerable", evidence=[], reference_answer=answer)
+    assert validate_items([unanswerable], docs).warnings == []
