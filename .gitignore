@@ -22,7 +22,7 @@ dist/
 # data/sample/ and data/README.md are committed so the format is visible without running.
 data/raw/
 data/chunks*.jsonl
-indexes/
+data/index*/
 
 # OS / editor
 .DS_Store
