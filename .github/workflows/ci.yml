@@ -38,3 +38,7 @@ jobs:
 
       - name: Test
         run: pytest
+
+      # Every evidence quote in the test set must still exist in the frozen corpus snapshot.
+      - name: Validate evaluation test set
+        run: python scripts/validate_questions.py
