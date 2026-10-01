@@ -1,0 +1,20 @@
+[project]
+name = "uk-renting-rag"
+version = "0.1.0"
+description = "RAG question-answering assistant over UK GOV.UK renting and tenancy guidance."
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "app", "tests"]
+
+[tool.ruff.lint]
+# E/F: pycodestyle + pyflakes errors, I: import sorting, B: likely bugs, UP: modern syntax
+select = ["E", "F", "I", "B", "UP"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# Make `import rag` work without installing the package (src layout)
+pythonpath = ["src"]
+addopts = "-ra"
