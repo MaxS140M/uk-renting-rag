@@ -1,0 +1,46 @@
+# Evaluation experiments. Each changes ONE setting from the experiment named in compare_to,
+# so any difference in scores can be attributed to that one change.
+#
+# Settings are RAGConfig fields (src/rag/config.py); anything not set uses the default
+# (dense retrieval, no reranker, 400-token chunks with 50 overlap, all-MiniLM-L6-v2,
+# 20 candidates, 5 passages to the LLM, RRF k = 60). index_dir is derived automatically.
+
+experiments:
+  # --- Retrieval method (each vs the baseline) ----------------------------------------------
+  - name: dense_baseline
+    description: "Phase 2 baseline: dense retrieval only"
+    settings: {retrieval_mode: dense, use_reranker: false}
+
+  - name: bm25
+    description: BM25 keyword search only
+    compare_to: dense_baseline
+    settings: {retrieval_mode: bm25}
+
+  - name: hybrid
+    description: Dense + BM25 fused with Reciprocal Rank Fusion
+    compare_to: dense_baseline
+    settings: {retrieval_mode: hybrid}
+
+  - name: hybrid_rerank
+    description: Hybrid, then cross-encoder reranking of the top 20
+    compare_to: hybrid
+    settings: {retrieval_mode: hybrid, use_reranker: true}
+
+  # --- Chunk size (each vs hybrid_rerank, which uses 400-token chunks) ---------------------
+  # Overlap scales with chunk size (about 12.5%). 500 rather than 512: both models add two
+  # special tokens and accept at most 512, so a 512-token chunk would lose its last tokens.
+  - name: hybrid_rerank_chunk256
+    description: Hybrid + reranker with 256-token chunks
+    compare_to: hybrid_rerank
+    settings: {retrieval_mode: hybrid, use_reranker: true, chunk_max_tokens: 256, chunk_overlap_tokens: 32}
+
+  - name: hybrid_rerank_chunk500
+    description: Hybrid + reranker with 500-token chunks
+    compare_to: hybrid_rerank
+    settings: {retrieval_mode: hybrid, use_reranker: true, chunk_max_tokens: 500, chunk_overlap_tokens: 64}
+
+  # --- Embedding model (vs hybrid_rerank, which uses all-MiniLM-L6-v2) ---------------------
+  - name: hybrid_rerank_bge
+    description: Hybrid + reranker with BAAI/bge-base-en-v1.5 embeddings (768 dims)
+    compare_to: hybrid_rerank
+    settings: {retrieval_mode: hybrid, use_reranker: true, embedding_model: BAAI/bge-base-en-v1.5}
