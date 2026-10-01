@@ -4,7 +4,8 @@ A retrieval-augmented generation (RAG) assistant that answers questions about re
 tenancy in England using official [GOV.UK](https://www.gov.uk) guidance, with citations back
 to the source pages.
 
-> **Status:** Phase 1 – document collection and chunking done. Retrieval not yet implemented.
+> **Status:** Phase 2 – baseline pipeline (dense retrieval + cited LLM answers) working end
+> to end. Hybrid search, reranking, evaluation and the web API are next.
 
 ## Project description
 
@@ -27,12 +28,35 @@ Coming soon. Retrieval and answer-quality metrics will be reported here.
 
 ## Architecture
 
+**Baseline (current):**
+
 ```
-GOV.UK pages ──► chunking ──► BM25 index  ─┐
-                         └──► FAISS index ─┴─► hybrid retrieval ──► cross-encoder rerank
-                                                                          │
-                       FastAPI /ask ◄── answer + citations ◄── LLM ◄──────┘
+Offline:  GOV.UK pages ──► download ──► chunk ──► embed (MiniLM) ──► FAISS index
+
+Query:    question ──► embed ──► FAISS top-k ──► prompt with numbered passages
+                                                        │
+          AnswerResult ◄── citations parsed ◄── Claude Haiku 4.5
+          (answer, cited sources, retrieved chunk IDs, per-stage latency)
 ```
+
+**Target (later phases):** BM25 keyword search alongside dense search, combined with
+Reciprocal Rank Fusion, then a cross-encoder reranker, all switchable in config for ablations.
+
+How it works:
+
+- **Indexing** (`scripts/build_index.py`): each chunk is embedded with
+  `all-MiniLM-L6-v2`. Vectors are normalised to unit length, so the inner product equals
+  cosine similarity, and stored in an exact FAISS inner-product index. The embedding model
+  name is saved with the index, and loading fails clearly if the query model differs.
+- **Retrieval** (`src/rag/retrieval.py`): every retriever implements one interface,
+  `retrieve(query, k) -> list[RetrievalResult]`, returning chunk IDs, scores, ranks, text and
+  citation metadata. Retrieval runs without the LLM, so retrieval metrics are cheap.
+- **Generation** (`src/rag/generate.py`, prompt in `src/rag/prompts.py`): Claude answers only
+  from the numbered passages, cites them as `[n]` with URLs, states the retrieval date, says
+  "I can't find that in the guidance" instead of guessing, and ends with a not-legal-advice
+  note. The prompt is versioned so results can be traced to it.
+- **Pipeline** (`src/rag/pipeline.py`): `answer(question, config)` returns a structured
+  `AnswerResult`. All settings live in one `RAGConfig` (`src/rag/config.py`).
 
 | Path            | Purpose                                                    |
 | --------------- | ---------------------------------------------------------- |
@@ -85,14 +109,27 @@ cp .env.example .env             # then add your ANTHROPIC_API_KEY to .env
 ruff check .
 pytest
 
-# Build the dataset (about a minute; see data/README.md)
+# Build the dataset and index (a few minutes; see data/README.md)
 python scripts/download_docs.py
 python scripts/chunk_corpus.py
+python scripts/build_index.py
+
+# Ask a question
+python scripts/ask.py "How long does my landlord have to protect my deposit?"
+
+# Inspect retrieval only (no LLM call, no API key needed)
+python scripts/ask.py "Can my landlord evict me without a reason?" --retrieval-only
 ```
+
+Tests mock the LLM, so `pytest` needs no API key and makes no paid calls.
 
 ## Evaluation
 
-Coming soon. The plan is to measure retrieval (recall@k, MRR), compare the effect of the
+A first manual check of the baseline is in
+[`eval/baseline_smoke_test.md`](eval/baseline_smoke_test.md) (10 questions, including two the
+guidance cannot answer), produced by `scripts/smoke_test.py`.
+
+A full evaluation is coming. The plan is to measure retrieval (recall@k, MRR), compare the effect of the
 reranker, and score answer faithfulness and citation accuracy against a labelled question set.
 
 ## Limitations
@@ -112,8 +149,9 @@ reranker, and score answer faithfulness and citation accuracy against a labelled
 
 - [x] Collect and clean GOV.UK renting guidance
 - [x] Implement token-based chunking
-- [ ] Implement hybrid retrieval (BM25 + dense embeddings)
+- [x] Dense retrieval baseline with FAISS
+- [x] Generate cited answers with an LLM
+- [ ] Add BM25 and hybrid retrieval (Reciprocal Rank Fusion)
 - [ ] Add cross-encoder reranking
-- [ ] Generate cited answers with an LLM
 - [ ] Expose a FastAPI endpoint and containerise with Docker
 - [ ] Build the evaluation suite and publish results
