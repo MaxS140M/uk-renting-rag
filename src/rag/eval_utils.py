@@ -215,3 +215,94 @@ def stratified_sample(items: Sequence[EvalItem], n: int, seed: int) -> set[str]:
 
 def type_counts(items: Iterable[EvalItem]) -> Counter:
     return Counter(i.question_type for i in items)
+
+
+# --- Validation -------------------------------------------------------------------------------
+
+_UNANSWERABLE_RE = re.compile(
+    r"(does not|doesn't|do not|don't|not) (cover|answer|say)|can't find|cannot find|"
+    r"not in the guidance|no information",
+    re.IGNORECASE,
+)
+
+
+@dataclass
+class ValidationReport:
+    errors: list[str]
+    warnings: list[str]
+
+    @property
+    def ok(self) -> bool:
+        return not self.errors
+
+
+def closest_text(quote: str, text: str, context: int = 30) -> str:
+    """The part of a document that best matches a quote, to help fix a broken quote."""
+    quote_n, text_n = normalise(quote), normalise(text)
+    match = SequenceMatcher(None, quote_n, text_n, autojunk=False).find_longest_match(
+        0, len(quote_n), 0, len(text_n)
+    )
+    start = max(0, match.b - match.a - context)
+    return text_n[start : start + len(quote_n) + 2 * context]
+
+
+def validate_items(
+    items: Sequence[EvalItem],
+    docs: Mapping[str, Mapping],
+    chunks: Iterable | None = None,
+    similarity_threshold: float = 0.85,
+) -> ValidationReport:
+    """Check items against the corpus (and, if given, a chunking of it).
+
+    Errors make the test set unusable; warnings are worth a look but may be intentional
+    (e.g. an informal rewording of a factual question is a deliberate near-duplicate).
+    """
+    errors: list[str] = []
+    warnings: list[str] = []
+
+    for item_id, count in Counter(i.id for i in items).items():
+        if count > 1:
+            errors.append(f"{item_id}: id used {count} times")
+
+    mapper = EvidenceMapper(chunks) if chunks is not None else None
+    for item in items:
+        if item.author == "llm_draft":
+            errors.append(f"{item.id}: unreviewed LLM draft; review it with add_question.py")
+        for n, evidence in enumerate(item.evidence, start=1):
+            where = f"{item.id} evidence {n}"
+            doc = docs.get(evidence.doc_id)
+            if doc is None:
+                errors.append(f"{where}: unknown doc_id '{evidence.doc_id}'")
+                continue
+            count = quote_count(evidence.quote, doc["text"])
+            if count == 0:
+                errors.append(
+                    f"{where}: quote not found in {evidence.doc_id}\n"
+                    f"    quote:   {evidence.quote!r}\n"
+                    f"    closest: {closest_text(evidence.quote, doc['text'])!r}"
+                )
+            elif count > 1:
+                warnings.append(f"{where}: quote appears {count} times in {evidence.doc_id}")
+            elif mapper is not None and not mapper.map_evidence(evidence):
+                errors.append(f"{where}: quote does not map to any chunk")
+        if item.question_type == "unanswerable" and not _UNANSWERABLE_RE.search(
+            item.reference_answer
+        ):
+            warnings.append(
+                f"{item.id}: unanswerable, but the reference answer does not say the guidance "
+                "doesn't cover it"
+            )
+
+    for pair in find_similar_questions(items, similarity_threshold):
+        if pair.exact:
+            errors.append(f"{pair.first} and {pair.second}: duplicate question")
+        else:
+            warnings.append(f"{pair.first} and {pair.second}: {pair.similarity:.0%} similar")
+
+    examples = [i.id for i in items if i.is_example]
+    if examples:
+        warnings.append(
+            f"{len(examples)} example item(s) ({', '.join(examples)}) are excluded from metrics; "
+            "replace them with real questions"
+        )
+    return ValidationReport(errors, warnings)
