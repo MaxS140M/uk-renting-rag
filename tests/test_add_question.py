@@ -1,21 +1,17 @@
 """Tests for the interactive authoring CLI: helper functions plus scripted end-to-end runs."""
 
-import importlib.util
 import subprocess
 import sys
 from pathlib import Path
 
 import pytest
 
+from rag.authoring import parse_selection, sentence_units
 from rag.eval_schema import load_items
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "add_question.py"
 SAMPLE = ROOT / "data" / "sample"
-
-spec = importlib.util.spec_from_file_location("add_question", SCRIPT)
-add_question = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(add_question)
 
 
 @pytest.mark.parametrize(
@@ -23,17 +19,17 @@ spec.loader.exec_module(add_question)
     [("2", [1]), ("2-4", [1, 2, 3]), ("a", [0, 1, 2, 3, 4]), ("A", [0, 1, 2, 3, 4])],
 )
 def test_parse_selection(selection, expected):
-    assert add_question.parse_selection(selection, 5) == expected
+    assert parse_selection(selection, 5) == expected
 
 
 @pytest.mark.parametrize("selection", ["0", "6", "4-2", "1-9", "two", "Your landlord must"])
 def test_parse_selection_rejects_non_selections(selection):
-    assert add_question.parse_selection(selection, 5) is None
+    assert parse_selection(selection, 5) is None
 
 
 def test_sentence_units_split_sentences_and_keep_list_items_whole():
     text = "First sentence here. Second one.\n- a list item, with a comma\n- another item"
-    assert add_question.sentence_units(text) == [
+    assert sentence_units(text) == [
         "First sentence here.",
         "Second one.",
         "- a list item, with a comma",
