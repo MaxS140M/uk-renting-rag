@@ -48,6 +48,11 @@ DRAFT_MODEL = "claude-opus-5-5"
 DRAFT_EFFORT = "high"  # careful evidence-finding matters more than speed here
 LLM_CACHE_DIR = DATA_DIR / "llm_cache"
 
+# LLM-as-judge for faithfulness and correctness: a stronger model than the one answering.
+# Its verdicts are checked against human labels (scripts/judge_agreement.py) before use.
+JUDGE_MODEL = "claude-opus-5-5"
+JUDGE_EFFORT = "medium"
+
 
 @dataclass(frozen=True)
 class RAGConfig:

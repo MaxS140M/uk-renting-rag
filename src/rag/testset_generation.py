@@ -25,7 +25,7 @@ from pydantic import ValidationError
 
 from rag.eval_schema import EvalItem, next_id
 from rag.eval_utils import question_similarity, quote_count
-from rag.llm_cache import LLMCache, LLMReply, reply_from_response
+from rag.llm_cache import LLMCache, LLMReply, streaming_sender
 
 DEFAULT_MIX = {"factual": 80, "multi_passage": 25, "informal": 12, "unanswerable": 13}
 COMMON_TOPICS = (
@@ -34,7 +34,6 @@ COMMON_TOPICS = (
     "rights and responsibilities of tenants and landlords"
 )
 QUESTIONS_PER_EVIDENCE_CALL = 10
-FALLBACK_BETA = "server-side-fallback-2026-07-01"
 
 # --- Step 1: questions from a persona ---------------------------------------------------------
 
@@ -223,18 +222,6 @@ def evidence_request(
 # --- Calling the model ------------------------------------------------------------------------
 
 
-def make_sender(client) -> Callable[[dict], LLMReply]:
-    """Send a request with streaming (long inputs and outputs) and the refusal fallback."""
-
-    def send(request: dict) -> LLMReply:
-        with client.beta.messages.stream(
-            **request, betas=[FALLBACK_BETA], fallbacks="default"
-        ) as stream:
-            return reply_from_response(stream.get_final_message())
-
-    return send
-
-
 def parse_reply(reply: LLMReply) -> dict:
     if reply.stop_reason == "max_tokens":
         raise ValueError("reply was cut off at max_tokens")
@@ -330,7 +317,7 @@ def generate_test_set(
 ) -> GenerationResult:
     """Run both steps and return validated drafts (not saved: the caller decides)."""
     result = GenerationResult()
-    send = make_sender(client)
+    send = streaming_sender(client)
 
     questions: list[dict] = []
     for question_type, n in mix.items():

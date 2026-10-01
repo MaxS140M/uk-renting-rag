@@ -9,8 +9,11 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import asdict, dataclass
+import time
+from collections.abc import Callable
+from dataclasses import asdict, dataclass, replace
 from pathlib import Path
+from types import SimpleNamespace
 
 
 @dataclass(frozen=True)
@@ -25,6 +28,7 @@ class LLMReply:
     cache_read_tokens: int = 0
     cache_write_tokens: int = 0
     cached: bool = False  # True if this came from the disk cache (no API call made)
+    latency_ms: float = 0.0  # time the original API call took (kept when cached)
 
 
 def request_key(request: dict) -> str:
@@ -88,3 +92,57 @@ def _summary(request: dict) -> dict:
     last = messages[-1]["content"] if messages else ""
     text = last if isinstance(last, str) else json.dumps(last)[:500]
     return {"model": request.get("model"), "last_message_start": text[:300]}
+
+
+FALLBACK_BETA = "server-side-fallback-2026-07-01"
+
+
+def streaming_sender(client, use_fallback: bool = True) -> Callable[[dict], LLMReply]:
+    """Send requests by streaming (safe for long inputs and outputs), timing each call.
+
+    With ``use_fallback``, the server-side refusal fallback is enabled: if the model's
+    safety classifier declines a request, the API retries it on a fallback model.
+    """
+
+    def send(request: dict) -> LLMReply:
+        extra = {"betas": [FALLBACK_BETA], "fallbacks": "default"} if use_fallback else {}
+        start = time.perf_counter()
+        with client.beta.messages.stream(**request, **extra) as stream:
+            message = stream.get_final_message()
+        elapsed = (time.perf_counter() - start) * 1000
+        return replace(reply_from_response(message), latency_ms=round(elapsed, 1))
+
+    return send
+
+
+class CachingClient:
+    """Wraps an Anthropic client so ``messages.create`` calls go through the disk cache.
+
+    Used for the answering model in evaluation runs: the generator code is unchanged, but
+    reruns are free and return the same answers. ``last_reply`` exposes the cached
+    reply (including the original latency) of the most recent call.
+    """
+
+    def __init__(self, client, cache: LLMCache) -> None:
+        self._client = client
+        self._cache = cache
+        self.last_reply: LLMReply | None = None
+        self.messages = SimpleNamespace(create=self._create)
+
+    def _send(self, request: dict) -> LLMReply:
+        start = time.perf_counter()
+        response = self._client.messages.create(**request)
+        elapsed = (time.perf_counter() - start) * 1000
+        return replace(reply_from_response(response), latency_ms=round(elapsed, 1))
+
+    def _create(self, **request):
+        reply = self._cache.call(request, self._send)
+        self.last_reply = reply
+        return SimpleNamespace(
+            content=[SimpleNamespace(type="text", text=reply.text)],
+            model=reply.model,
+            stop_reason=reply.stop_reason,
+            usage=SimpleNamespace(
+                input_tokens=reply.input_tokens, output_tokens=reply.output_tokens
+            ),
+        )

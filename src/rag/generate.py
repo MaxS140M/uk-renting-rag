@@ -59,21 +59,24 @@ class Generator:
             self._client = create_client()
         return self._client
 
-    def generate(self, question: str, results: Sequence[RetrievalResult]) -> Generation:
+    def build_request(self, question: str, results: Sequence[RetrievalResult]) -> dict:
+        """The exact keyword arguments sent to messages.create (also used as a cache key)."""
         # Anthropic SDK 1.x dropped `temperature` from messages.create() because the newest
         # models reject it. Older models such as Haiku 4.5 still accept it, so it is sent as
         # raw JSON via extra_body, and only when configured (None means "do not send").
         extra_body = {}
         if self.config.llm_temperature is not None:
             extra_body["temperature"] = self.config.llm_temperature
+        return {
+            "model": self.config.llm_model,
+            "max_tokens": self.config.llm_max_tokens,
+            "system": SYSTEM_PROMPT,
+            "messages": [{"role": "user", "content": build_user_prompt(question, results)}],
+            "extra_body": extra_body or None,
+        }
 
-        response = self.client.messages.create(
-            model=self.config.llm_model,
-            max_tokens=self.config.llm_max_tokens,
-            system=SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": build_user_prompt(question, results)}],
-            extra_body=extra_body or None,
-        )
+    def generate(self, question: str, results: Sequence[RetrievalResult]) -> Generation:
+        response = self.client.messages.create(**self.build_request(question, results))
         text = "".join(block.text for block in response.content if block.type == "text")
         if response.stop_reason == "max_tokens":
             log.warning("Answer was cut off at max_tokens=%d", self.config.llm_max_tokens)
