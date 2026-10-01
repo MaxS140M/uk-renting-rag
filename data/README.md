@@ -21,9 +21,22 @@ which allows reuse provided the source is attributed:
 
 | Path | Committed? | Contents |
 | --- | --- | --- |
-| `raw/` | No | One JSON file per page, written by `scripts/download_docs.py` |
+| `raw/` | **Yes** (frozen snapshot) | One JSON file per page, written by `scripts/download_docs.py` |
 | `chunks.jsonl` | No | One chunk per line, written by `scripts/chunk_corpus.py` |
-| `sample/` | Yes | Three example documents, showing the format; also used by the tests |
+| `index/` | No | FAISS and BM25 indexes, written by `scripts/build_index.py` |
+| `sample/` | Yes | Three small documents used by the unit tests |
+
+## Frozen snapshot
+
+`raw/` is committed as a **frozen snapshot** of the corpus, retrieved on 2026-10-01. The
+evaluation set (`eval/questions.jsonl`) cites exact quotes from these documents, and GOV.UK
+edits its pages over time, so the test set is only valid against a fixed version of the
+text. Committing the snapshot means anyone who clones the repo evaluates against the same
+documents, and CI can check that every quote still exists.
+
+Updating the corpus is therefore a deliberate change, not a side effect: re-download with
+`--refresh`, review the git diff, run `python scripts/validate_questions.py` to find quotes
+that no longer match, fix them, and commit everything together.
 
 Each document is a JSON object:
 
@@ -45,8 +58,8 @@ Renters' Rights Act changes from 1 May 2026. Treat `date_retrieved` as the relia
 ## Rebuilding the dataset
 
 ```bash
-python scripts/download_docs.py        # fetch pages into data/raw/ (skips existing files)
-python scripts/download_docs.py --refresh   # re-download everything
+python scripts/download_docs.py        # fetch any pages missing from data/raw/
+python scripts/download_docs.py --refresh   # re-download everything (changes the snapshot)
 python scripts/chunk_corpus.py         # write data/chunks.jsonl
 python scripts/summarise_corpus.py     # regenerate eval/corpus_overview.md
 ```

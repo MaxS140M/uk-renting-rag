@@ -18,9 +18,9 @@ dist/
 # Jupyter
 .ipynb_checkpoints/
 
-# Generated data and indexes (rebuilt by scripts/, not versioned).
-# data/sample/ and data/README.md are committed so the format is visible without running.
-data/raw/
+# Derived data (rebuilt from data/raw/ by scripts/, not versioned).
+# data/raw/ IS committed: it is the frozen corpus snapshot the evaluation set is written
+# against, so quotes in eval/questions.jsonl can always be checked.
 data/chunks*.jsonl
 data/index*/
 
