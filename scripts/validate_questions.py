@@ -49,6 +49,9 @@ def main() -> int:
     parser.add_argument("--corpus", type=Path, default=RAW_DIR)
     parser.add_argument("--strict", action="store_true", help="treat warnings as errors")
     parser.add_argument(
+        "--drafts", action="store_true", help="the file holds unreviewed drafts (eval/drafts.jsonl)"
+    )
+    parser.add_argument(
         "--skip-chunk-check", action="store_true", help="skip mapping quotes to chunks (faster)"
     )
     parser.add_argument(
@@ -79,7 +82,7 @@ def main() -> int:
             )
         ]
 
-    report = validate_items(items, docs, chunks)
+    report = validate_items(items, docs, chunks, allow_drafts=args.drafts)
     errors = problems + report.errors
 
     counts = type_counts(items)

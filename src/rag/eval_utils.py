@@ -251,6 +251,7 @@ def validate_items(
     docs: Mapping[str, Mapping],
     chunks: Iterable | None = None,
     similarity_threshold: float = 0.85,
+    allow_drafts: bool = False,
 ) -> ValidationReport:
     """Check items against the corpus (and, if given, a chunking of it).
 
@@ -266,8 +267,8 @@ def validate_items(
 
     mapper = EvidenceMapper(chunks) if chunks is not None else None
     for item in items:
-        if item.author == "llm_draft":
-            errors.append(f"{item.id}: unreviewed LLM draft; review it with add_question.py")
+        if item.author == "llm_draft" and not allow_drafts:
+            errors.append(f"{item.id}: unreviewed LLM draft; review it with review_drafts.py")
         for n, evidence in enumerate(item.evidence, start=1):
             where = f"{item.id} evidence {n}"
             doc = docs.get(evidence.doc_id)

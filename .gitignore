@@ -23,6 +23,7 @@ dist/
 # against, so quotes in eval/questions.jsonl can always be checked.
 data/chunks*.jsonl
 data/index*/
+data/llm_cache/
 
 # OS / editor
 .DS_Store

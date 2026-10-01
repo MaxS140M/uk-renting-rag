@@ -42,6 +42,12 @@ LLM_MAX_TOKENS = 1024
 # models that reject the parameter (Claude Opus 4.7 and later).
 LLM_TEMPERATURE: float | None = 0.0
 
+# Test-set drafting uses a stronger model than the answering model, so the questions and
+# reference answers are not limited by the system being evaluated.
+DRAFT_MODEL = "claude-opus-5-5"
+DRAFT_EFFORT = "high"  # careful evidence-finding matters more than speed here
+LLM_CACHE_DIR = DATA_DIR / "llm_cache"
+
 
 @dataclass(frozen=True)
 class RAGConfig:
