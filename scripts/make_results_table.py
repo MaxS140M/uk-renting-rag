@@ -17,6 +17,7 @@ import sys
 
 from rag.config import PROJECT_ROOT
 from rag.experiment import Experiment, changed_settings, load_experiments
+from rag.metrics import paired_bootstrap_ci
 
 EVAL_DIR = PROJECT_ROOT / "eval"
 SUMMARY = EVAL_DIR / "results" / "summary.csv"
@@ -74,10 +75,30 @@ def main_table(rows: dict[str, dict], experiments: list[Experiment]) -> list[str
     return lines
 
 
-def ablation_table(rows: dict[str, dict], experiments: list[Experiment]) -> list[str]:
+def paired_diff(per_question: dict, new: str, old: str, metric: str, scale: float) -> str:
+    """95% paired bootstrap interval for the difference, as text; '*' if it excludes zero."""
+    a_records, b_records = per_question.get(old), per_question.get(new)
+    if not a_records or not b_records:
+        return ""
+    ids = sorted(i for i in a_records if i in b_records and metric in a_records[i])
+    if not ids:
+        return ""
+    _, low, high = paired_bootstrap_ci(
+        [a_records[i][metric] for i in ids], [b_records[i][metric] for i in ids]
+    )
+    star = " *" if low > 0 or high < 0 else ""
+    fmt = "{:+.1f}" if scale == 100 else "{:+.3f}"
+    return f" [{fmt.format(low * scale)}, {fmt.format(high * scale)}]{star}"
+
+
+def ablation_table(
+    rows: dict[str, dict], experiments: list[Experiment], per_question: dict | None = None
+) -> list[str]:
+    per_question = per_question or {}
     by_name = {e.name: e for e in experiments}
     lines = [
-        "| Experiment | Compared with | Change | Δ Recall@5 | Δ MRR | Δ Correctness |",
+        "| Experiment | Compared with | Change | Δ Recall@5 (95% CI) | Δ MRR (95% CI) "
+        "| Δ Correctness |",
         "|---|---|---|---:|---:|---:|",
     ]
     for e in experiments:
@@ -90,9 +111,12 @@ def ablation_table(rows: dict[str, dict], experiments: list[Experiment]) -> list
             if k != "chunk_overlap_tokens"
         )
         d_mrr = (num(new, "mrr") or 0) - (num(old, "mrr") or 0)
+        ci_r5 = paired_diff(per_question, e.name, e.compare_to, "recall_at_5", 100)
+        ci_mrr = paired_diff(per_question, e.name, e.compare_to, "reciprocal_rank", 1)
         lines.append(
             f"| `{e.name}` | `{e.compare_to}` | {change} | "
-            f"{points(num(new, 'recall_at_5'), num(old, 'recall_at_5'))} | {d_mrr:+.3f} | "
+            f"{points(num(new, 'recall_at_5'), num(old, 'recall_at_5'))}{ci_r5} | "
+            f"{d_mrr:+.3f}{ci_mrr} | "
             f"{points(num(new, 'correctness'), num(old, 'correctness'))} |"
         )
     return lines
@@ -153,6 +177,7 @@ def build_markdown(
     experiments: list[Experiment],
     judge_stats: dict | None,
     heldout_runs: list[dict],
+    per_question: dict | None = None,
 ) -> str:
     dev = {r["config"]: r for r in rows if r["split"] == "dev"}
     heldout = {r["config"]: r for r in rows if r["split"] == "heldout"}
@@ -192,9 +217,11 @@ def build_markdown(
         "## One change at a time",
         "",
         "Each experiment changes one setting from the one it is compared with, so the "
-        "difference can be attributed to that setting.",
+        "difference can be attributed to that setting. Brackets give a 95% paired bootstrap "
+        "interval for the difference (the same questions resampled 5,000 times); * marks an "
+        "interval that excludes zero, i.e. a difference unlikely to be chance.",
         "",
-        *ablation_table(dev, order),
+        *ablation_table(dev, order, per_question),
         "",
         "## How much to trust these numbers",
         "",
@@ -240,7 +267,14 @@ def main() -> int:
     heldout_runs = (
         [json.loads(line) for line in log.read_text().splitlines() if line] if log.exists() else []
     )
-    OUT.write_text(build_markdown(rows, experiments, judge_stats, heldout_runs), encoding="utf-8")
+    per_question = {}
+    for e in experiments:
+        path = EVAL_DIR / "results" / f"{e.name}.jsonl"
+        if path.exists():
+            records = [json.loads(line) for line in path.read_text("utf-8").splitlines() if line]
+            per_question[e.name] = {r["id"]: r for r in records}
+    markdown = build_markdown(rows, experiments, judge_stats, heldout_runs, per_question)
+    OUT.write_text(markdown, encoding="utf-8")
     print(OUT.read_text(encoding="utf-8"))
     return 0
 

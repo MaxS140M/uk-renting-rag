@@ -7,6 +7,7 @@ from rag.metrics import (
     evidence_recall_at_k,
     first_relevant_rank,
     mean,
+    paired_bootstrap_ci,
     percent_agreement,
     percentile,
     recall_at_k,
@@ -79,3 +80,18 @@ def test_cohens_kappa_edge_cases():
     assert cohens_kappa(["y", "n", "y", "n"], ["n", "y", "n", "y"]) == pytest.approx(-1.0)
     with pytest.raises(ValueError):
         cohens_kappa(["y"], ["y", "n"])
+
+
+def test_paired_bootstrap_detects_a_consistent_difference():
+    a = [0.0, 1.0] * 50
+    better = [1.0] * 100  # wins on every question that a misses, never loses
+    mean_diff, low, high = paired_bootstrap_ci(a, better)
+    assert mean_diff == pytest.approx(0.5) and 0 < low <= 0.5 <= high
+
+
+def test_paired_bootstrap_interval_contains_zero_for_noise():
+    a = [1.0, 0.0, 1.0, 0.0] * 25
+    shuffled = [0.0, 1.0, 1.0, 0.0] * 25  # same average, different questions
+    mean_diff, low, high = paired_bootstrap_ci(a, shuffled)
+    assert mean_diff == 0 and low < 0 < high
+    assert paired_bootstrap_ci(a, shuffled) == paired_bootstrap_ci(a, shuffled)  # seeded

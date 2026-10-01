@@ -7,6 +7,7 @@ metrics work for any chunking.
 from __future__ import annotations
 
 import math
+import random
 from collections import Counter
 from collections.abc import Hashable, Sequence
 
@@ -76,3 +77,29 @@ def cohens_kappa(a: Sequence[Hashable], b: Sequence[Hashable]) -> float:
     if expected == 1.0:
         return 1.0 if observed == 1.0 else 0.0
     return (observed - expected) / (1 - expected)
+
+
+def paired_bootstrap_ci(
+    a: Sequence[float],
+    b: Sequence[float],
+    n_resamples: int = 5000,
+    seed: int = 0,
+    confidence: float = 0.95,
+) -> tuple[float, float, float]:
+    """Mean of (b - a) over paired per-question scores, with a bootstrap confidence interval.
+
+    Questions are resampled with replacement, keeping each question's pair of scores
+    together: comparing two systems on the same questions removes the variation between
+    questions, so the interval is narrower than comparing two separate averages. If the
+    interval contains 0, the difference could plausibly be chance.
+    """
+    if len(a) != len(b) or not a:
+        raise ValueError("need two non-empty score lists of the same length")
+    diffs = [y - x for x, y in zip(a, b, strict=True)]
+    rng = random.Random(seed)
+    n = len(diffs)
+    means = sorted(sum(diffs[rng.randrange(n)] for _ in range(n)) / n for _ in range(n_resamples))
+    tail = (1 - confidence) / 2
+    low = means[int(tail * n_resamples)]
+    high = means[min(n_resamples - 1, int((1 - tail) * n_resamples))]
+    return sum(diffs) / n, low, high
