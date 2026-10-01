@@ -19,6 +19,8 @@ answer correct, faithful to its sources, and does it refuse when it should?).
 | `corpus_overview.md` | Titles and headings of every document, used to plan questions |
 | `smoke_questions.json` | 10 informal smoke-test questions (not part of the test set) |
 | `drafts.jsonl` | Unreviewed LLM drafts (git-ignored; never used directly) |
+| `review_log.jsonl` | One line per reviewed draft: accepted, edited (which fields) or rejected (why) |
+| `review_summary.md` | Counts from the review log: accepted, edited, rejected, by type |
 
 ## Item format
 
@@ -61,19 +63,40 @@ than guess.
 
 ## How the questions are written
 
-1. **By hand, from the documents.** Questions are written with `scripts/add_question.py`,
-   which searches the corpus by keyword, shows matching paragraphs, and lets the author select
-   the exact supporting sentences, so every quote is copied from the document, not retyped.
-2. **LLM drafts are optional and always reviewed.** `scripts/draft_questions.py` asks the LLM
-   to propose questions for one document. Drafts go to `drafts.jsonl` (never to the test set)
-   with author `llm_draft`. Each is reviewed with `add_question.py --from-draft draft-NNN`,
-   where the question, type, quotes and answer are checked and edited; the saved item has
-   author `llm_draft_reviewed`, and its notes record which draft it came from. Draft quotes
-   that are not found word for word in the document are flagged, because LLMs often
-   paraphrase when asked to quote.
-3. **Unanswerable questions are checked against the corpus**, not just one document:
+The test set was drafted by an LLM in two separate steps, then **every item was reviewed by
+hand** before joining the test set.
+
+1. **Questions from a tenant persona, without the passages.**
+   `scripts/draft_questions.py --test-set` asks a stronger model than the answering model
+   (`claude-opus-5-5`, set as `DRAFT_MODEL` in `src/rag/config.py`) to write questions as
+   real tenants and landlords would ask them. It sees **only the list of topics** the guidance
+   covers (titles and headings from `corpus_overview.md`), never the passages. Questions
+   written while reading a passage tend to reuse its exact wording, which unfairly favours
+   keyword search; real users describe their problem in their own words. Target mix: about
+   80 factual, 25 multi-passage, 12 informal and 13 unanswerable, focused on common topics
+   (deposits, repairs, rent increases, evictions, agreements, fees, moving out, HMOs,
+   landlord access, rights and responsibilities). Near-duplicates are dropped.
+2. **Evidence from the whole corpus, in separate calls.** For each question, the model reads
+   the **entire corpus** (prompt-cached) and copies exact supporting quotes, then writes a
+   reference answer from those quotes only. The evidence is deliberately not found with this
+   project's retriever: using the system under test to find the gold evidence would silently
+   drop every question it fails on and inflate its scores. If the model finds that a
+   question meant to be unanswerable is covered (or a multi-passage one needs only one
+   passage), the type is corrected and the change noted for review. Every quote is checked
+   word for word against the document; LLMs often paraphrase when asked to quote.
+3. **Human review of every draft.** `scripts/review_drafts.py` shows each draft with its
+   quotes in context and lets the reviewer accept, edit (question, type, answer or evidence)
+   or reject it, with a reason. Accepted items get author `llm_draft_reviewed` and a note
+   naming the draft. Drafts with a quote that is not in the document word for word cannot be
+   accepted until the evidence is fixed. Every decision is logged in `review_log.jsonl`, and
+   the counts are in `review_summary.md`.
+4. **Unanswerable questions are checked against the corpus**:
    `validate_questions.py --show-unanswerable` shows the top passages from the strongest
    retriever, to confirm none of them answers the question.
+
+Questions can also be written entirely by hand with `scripts/add_question.py`, which
+searches the corpus by keyword and lets the author select the exact supporting sentences
+(author `max`).
 
 ## Why evidence is a quote, not a chunk id
 
