@@ -29,7 +29,9 @@ TOP_K = 5
 
 LLM_MODEL = "claude-haiku-4-5-20251001"
 LLM_MAX_TOKENS = 1024
-LLM_TEMPERATURE = 0.0  # deterministic as possible: we want faithful answers, not creative ones
+# Low temperature: we want faithful, repeatable answers, not creative ones. Set to None for
+# models that reject the parameter (Claude Opus 4.7 and later).
+LLM_TEMPERATURE: float | None = 0.0
 
 
 @dataclass(frozen=True)
@@ -45,4 +47,4 @@ class RAGConfig:
     top_k: int = TOP_K
     llm_model: str = LLM_MODEL
     llm_max_tokens: int = LLM_MAX_TOKENS
-    llm_temperature: float = LLM_TEMPERATURE
+    llm_temperature: float | None = LLM_TEMPERATURE
