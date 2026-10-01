@@ -29,3 +29,6 @@ data/index*/
 Thumbs.db
 .vscode/
 .idea/
+
+# Unreviewed LLM question drafts (work in progress; reviewed items go to eval/questions.jsonl)
+eval/drafts.jsonl
