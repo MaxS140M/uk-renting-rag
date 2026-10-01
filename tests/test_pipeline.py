@@ -1,6 +1,9 @@
 """Tests for prompt building, generation and the end-to-end pipeline, with the LLM mocked."""
 
+import inspect
+
 import pytest
+from anthropic.resources.messages import Messages
 
 from rag.config import RAGConfig
 from rag.generate import Generator, MissingAPIKeyError, create_client
@@ -53,11 +56,27 @@ def test_generator_sends_configured_model_settings(results, fake_client_factory)
     call = client.messages.calls[0]
     assert call["model"] == "claude-test"
     assert call["max_tokens"] == 321
-    assert call["temperature"] == 0.0
+    assert call["extra_body"] == {"temperature": 0.0}
+    assert "temperature" not in call  # SDK 1.x rejects it as a keyword argument
     assert call["system"] == SYSTEM_PROMPT
     assert results[0].url in call["messages"][0]["content"]
     assert generation.text == "Protect it within 30 days [1]."
     assert generation.input_tokens == 100
+
+
+def test_request_only_uses_arguments_the_real_sdk_accepts(results, fake_client_factory):
+    # The fake client accepts anything, so check the request against the real SDK signature.
+    # (This catches changes like SDK 1.x removing the `temperature` keyword argument.)
+    accepted = set(inspect.signature(Messages.create).parameters)
+    client = fake_client_factory()
+    Generator(RAGConfig(), client=client).generate("Deposit?", results)
+    assert set(client.messages.calls[0]) <= accepted
+
+
+def test_temperature_none_is_not_sent(results, fake_client_factory):
+    client = fake_client_factory()
+    Generator(RAGConfig(llm_temperature=None), client=client).generate("Deposit?", results)
+    assert client.messages.calls[0]["extra_body"] is None
 
 
 def test_missing_api_key_gives_a_clear_error(monkeypatch):
