@@ -4,8 +4,9 @@ A retrieval-augmented generation (RAG) assistant that answers questions about re
 tenancy in England using official [GOV.UK](https://www.gov.uk) guidance, with citations back
 to the source pages.
 
-> **Status:** Phase 3 – dense, BM25 and hybrid retrieval with an optional cross-encoder
-> reranker, all switchable in config. Formal evaluation and the web API are next.
+> **Status:** Phase 4 – evaluation tooling in place (schema, authoring CLI, validation in CI,
+> stratified held-out split); the 100-question test set is being written. Evaluation runs and
+> the web API are next.
 
 ## Project description
 
@@ -152,9 +153,22 @@ A first manual check of the baseline is in
 guidance cannot answer), produced by `scripts/smoke_test.py`.
 
 A qualitative comparison of the four retrieval setups on the same questions, with
-latency, is in [`eval/phase3_comparison.md`](eval/phase3_comparison.md). A full evaluation is
-coming. The plan is to measure retrieval (recall@k, MRR), compare the effect of the
-reranker, and score answer faithfulness and citation accuracy against a labelled question set.
+latency, is in [`eval/phase3_comparison.md`](eval/phase3_comparison.md).
+
+**Test set (in progress).** A hand-written set of 100 questions (60 factual, 20
+multi-passage, 10 informal, 10 unanswerable), described in [`eval/README.md`](eval/README.md):
+
+- Gold evidence is stored as **exact quotes from the documents, not chunk ids**, and mapped to
+  chunks at evaluation time, so the same labels work for every chunk size compared.
+- The corpus is a **frozen, committed snapshot**, and CI checks that every quote still exists
+  in it.
+- **20 questions are held out**, stratified by question type with a fixed seed, and run only
+  once at the end; all tuning uses the dev split.
+- Optional LLM-drafted questions are kept separate and must be reviewed and edited before
+  joining the test set.
+
+Planned metrics: Recall@5 and MRR for retrieval; faithfulness (LLM-as-judge, checked against
+my own judgements), correctness and refusal accuracy for answers; and latency.
 
 ## Limitations
 
@@ -178,4 +192,6 @@ reranker, and score answer faithfulness and citation accuracy against a labelled
 - [x] Add BM25 and hybrid retrieval (Reciprocal Rank Fusion)
 - [x] Add cross-encoder reranking
 - [ ] Expose a FastAPI endpoint and containerise with Docker
-- [ ] Build the evaluation suite and publish results
+- [x] Evaluation tooling: schema, authoring CLI, validation in CI, held-out split
+- [ ] Write the 100-question test set
+- [ ] Run the evaluation and publish results
