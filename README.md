@@ -4,8 +4,8 @@ A retrieval-augmented generation (RAG) assistant that answers questions about re
 tenancy in England using official [GOV.UK](https://www.gov.uk) guidance, with citations back
 to the source pages.
 
-> **Status:** Phase 2 – baseline pipeline (dense retrieval + cited LLM answers) working end
-> to end. Hybrid search, reranking, evaluation and the web API are next.
+> **Status:** Phase 3 – dense, BM25 and hybrid retrieval with an optional cross-encoder
+> reranker, all switchable in config. Formal evaluation and the web API are next.
 
 ## Project description
 
@@ -28,29 +28,45 @@ Coming soon. Retrieval and answer-quality metrics will be reported here.
 
 ## Architecture
 
-**Baseline (current):**
-
 ```
-Offline:  GOV.UK pages ──► download ──► chunk ──► embed (MiniLM) ──► FAISS index
+Offline:  GOV.UK pages ─► download ─► chunk ─┬─► embed (MiniLM) ─► FAISS index
+                                             └─► tokenise ─────► BM25 index
 
-Query:    question ──► embed ──► FAISS top-k ──► prompt with numbered passages
-                                                        │
-          AnswerResult ◄── citations parsed ◄── Claude Haiku 4.5
-          (answer, cited sources, retrieved chunk IDs, per-stage latency)
+Query:    question ─┬─► dense search (FAISS) ─┐
+                    │                         ├─► RRF fusion ─► cross-encoder rerank ─► top 5
+                    └─► BM25 keyword search ──┘   (top 20 each)  (20 candidates)        │
+                                                                                         ▼
+          AnswerResult ◄── citations parsed ◄── Claude Haiku 4.5 ◄── numbered passages
+          (answer, cited sources, retrieved chunk IDs, per-stage latency, config)
 ```
 
-**Target (later phases):** BM25 keyword search alongside dense search, combined with
-Reciprocal Rank Fusion, then a cross-encoder reranker, all switchable in config for ablations.
+Each stage is switchable in `RAGConfig`: `retrieval_mode` (`dense`, `bm25` or `hybrid`) and
+`use_reranker`, plus `candidate_k`, `final_k` and `rrf_k`. The default is the Phase 2
+baseline (dense, no reranker) until the evaluation shows which setup is best.
 
 How it works:
 
 - **Indexing** (`scripts/build_index.py`): each chunk is embedded with
   `all-MiniLM-L6-v2`. Vectors are normalised to unit length, so the inner product equals
   cosine similarity, and stored in an exact FAISS inner-product index. The embedding model
-  name is saved with the index, and loading fails clearly if the query model differs.
-- **Retrieval** (`src/rag/retrieval.py`): every retriever implements one interface,
-  `retrieve(query, k) -> list[RetrievalResult]`, returning chunk IDs, scores, ranks, text and
-  citation metadata. Retrieval runs without the LLM, so retrieval metrics are cheap.
+  name is saved with the index, and loading fails clearly if the query model differs. The
+  same script tokenises every chunk for BM25 and saves the tokens as JSON (safe to load and
+  independent of library versions, unlike a pickled object).
+- **Retrieval** (`src/rag/retrieval.py`, `src/rag/rerank.py`): every retriever implements
+  one interface, `retrieve(query, k) -> list[RetrievalResult]`, returning chunk IDs, scores,
+  text, citation metadata and the chunk's rank at every stage. `build_retriever(config)`
+  (`src/rag/factory.py`) assembles the right combination, so nothing else knows which is
+  active. Retrieval runs without the LLM, so retrieval metrics are cheap.
+  - **Dense** search finds passages with similar *meaning*, even with different wording.
+  - **BM25** scores *exact term* overlap, which dense search blurs: numbers ("30 days"),
+    form names ("Form 4A") and legal references. Its tokeniser keeps "section 21" together
+    as one term as well as two words, keeps numbers, and folds simple plurals ("HMOs").
+  - **Hybrid** merges the two candidate lists with Reciprocal Rank Fusion,
+    `score = Σ 1 / (60 + rank)`. It uses ranks, not raw scores, because cosine similarity and
+    BM25 scores are on incompatible scales.
+  - **Reranker**: a cross-encoder (`ms-marco-MiniLM-L-6-v2`) reads each (question, passage)
+    pair together and rescores the top 20 candidates. More accurate than embedding
+    similarity, but about 0.7 s per question on CPU, so it only sees a short list.
 - **Generation** (`src/rag/generate.py`, prompt in `src/rag/prompts.py`): Claude answers only
   from the numbered passages, cites them as `[n]` with URLs, states the retrieval date, says
   "I can't find that in the guidance" instead of guessing, and ends with a not-legal-advice
@@ -117,8 +133,14 @@ python scripts/build_index.py
 # Ask a question
 python scripts/ask.py "How long does my landlord have to protect my deposit?"
 
+# Choose a retrieval setup
+python scripts/ask.py "Can my landlord evict me without a reason?" --mode hybrid --rerank
+
 # Inspect retrieval only (no LLM call, no API key needed)
-python scripts/ask.py "Can my landlord evict me without a reason?" --retrieval-only
+python scripts/ask.py "Can my landlord evict me without a reason?" --retrieval-only --mode bm25
+
+# Compare dense, BM25, hybrid and hybrid + reranker side by side (no LLM calls)
+python scripts/compare_retrieval.py "How long does my landlord have to protect my deposit?"
 ```
 
 Tests mock the LLM, so `pytest` needs no API key and makes no paid calls.
@@ -129,7 +151,9 @@ A first manual check of the baseline is in
 [`eval/baseline_smoke_test.md`](eval/baseline_smoke_test.md) (10 questions, including two the
 guidance cannot answer), produced by `scripts/smoke_test.py`.
 
-A full evaluation is coming. The plan is to measure retrieval (recall@k, MRR), compare the effect of the
+A qualitative comparison of the four retrieval setups on the same questions, with
+latency, is in [`eval/phase3_comparison.md`](eval/phase3_comparison.md). A full evaluation is
+coming. The plan is to measure retrieval (recall@k, MRR), compare the effect of the
 reranker, and score answer faithfulness and citation accuracy against a labelled question set.
 
 ## Limitations
@@ -151,7 +175,7 @@ reranker, and score answer faithfulness and citation accuracy against a labelled
 - [x] Implement token-based chunking
 - [x] Dense retrieval baseline with FAISS
 - [x] Generate cited answers with an LLM
-- [ ] Add BM25 and hybrid retrieval (Reciprocal Rank Fusion)
-- [ ] Add cross-encoder reranking
+- [x] Add BM25 and hybrid retrieval (Reciprocal Rank Fusion)
+- [x] Add cross-encoder reranking
 - [ ] Expose a FastAPI endpoint and containerise with Docker
 - [ ] Build the evaluation suite and publish results
