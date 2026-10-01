@@ -1,0 +1,68 @@
+# GOV.UK pages on renting in England, fetched via https://www.gov.uk/api/content/<path>.
+# All content is Crown copyright, published under the Open Government Licence v3.0.
+# One path per line. Blank lines and lines starting with # are ignored.
+
+# --- Private renting: tenant guides ---
+/private-renting
+/private-renting-evictions
+/assured-periodic-tenancies-tenants
+/tenancy-deposit-protection
+/rental-discrimination-tenants
+/prove-right-to-rent
+/housing-tribunals
+
+# --- Private renting: landlord guides ---
+/renting-out-a-property
+/evicting-tenants
+/assured-tenancy-agreements-a-guide-for-landlords
+/deposit-protection-schemes-and-landlords
+/check-tenant-right-to-rent-documents
+/rental-discrimination-landlords
+/rent-room-in-your-home
+
+# --- Renters' Rights Act 2025 (in force from 1 May 2026) ---
+/government/publications/the-renters-rights-act-information-sheet-2026
+/government/publications/guide-to-the-renters-rights-act
+/guidance/renters-rights-act-overview-for-tenants
+/guidance/renters-rights-act-an-overview-for-landlords
+/guidance/tenancy-agreements-written-information-for-your-tenant
+/guidance/enforcement-measures-for-landlords-renters-rights-act-2025
+/government/publications/rental-discrimination-under-the-renters-rights-act-2025
+
+# --- Evictions and possession notices ---
+/guidance/notices-of-possession-served-from-1-may-2026-a-guide-for-tenants-who-are-renting-from-a-private-landlord
+/guidance/notices-of-possession-served-before-1-may-2026-a-guide-for-tenants-who-are-renting-from-a-private-landlord
+/guidance/repossessing-your-privately-rented-property-after-1-may-2026
+/guidance/assured-tenancy-forms
+
+# --- Rent, fees and disputes ---
+/guidance/apply-for-an-open-market-rent-determination
+/government/publications/first-tier-tribunal-residential-property-rent-cases-t540
+/guidance/tenant-fees-act-2019-guidance-for-tenants
+/guidance/rent-repayment-orders-guidance-for-tenants
+/guidance/rent-repayment-orders-offences-guidance-for-tenants
+
+# --- Repairs, safety and property standards ---
+/government/publications/damp-and-mould-in-the-private-rented-sector
+/government/publications/damp-and-mould-understanding-and-addressing-the-health-risks-for-rented-housing-providers
+/government/publications/electrical-safety-standards-in-the-private-and-social-rented-sectors-guidance
+/government/publications/smoke-and-carbon-monoxide-alarms-explanatory-booklet-for-landlords
+/guidance/domestic-private-rented-property-minimum-energy-efficiency-standard-landlord-guidance
+/fire-safety-flats-england-residents
+
+# --- Houses in multiple occupation (HMOs) ---
+/find-licences/house-in-multiple-occupation-licence
+
+# --- Social housing ---
+/council-housing
+/housing-association-homes
+/council-housing-association-evictions
+/guidance/social-housing-complaints-make-things-right
+/guidance/how-to-report-a-problem-or-make-an-individual-complaint-about-your-social-housing-landlord
+/government/publications/awaabs-law-guidance-for-social-landlords
+
+# --- Help with housing costs and homelessness ---
+/housing-benefit
+/housing-and-universal-credit
+/if-youre-homeless-at-risk-of-homelessness
+/your-rights-to-housing-if-youre-under-18

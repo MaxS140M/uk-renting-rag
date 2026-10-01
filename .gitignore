@@ -18,8 +18,10 @@ dist/
 # Jupyter
 .ipynb_checkpoints/
 
-# Generated data and indexes (rebuilt by scripts/, not versioned)
-data/
+# Generated data and indexes (rebuilt by scripts/, not versioned).
+# data/sample/ and data/README.md are committed so the format is visible without running.
+data/raw/
+data/chunks*.jsonl
 indexes/
 
 # OS / editor
