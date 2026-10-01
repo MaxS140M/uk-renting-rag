@@ -1,4 +1,4 @@
-"""Embed every chunk in data/chunks.jsonl and save a FAISS index to data/index/.
+"""Build the search indexes for data/chunks.jsonl: FAISS (dense) and BM25 (keyword).
 
 Usage:
     python scripts/build_index.py
@@ -16,6 +16,7 @@ from pathlib import Path
 
 from rag.config import CHUNKS_FILE, EMBEDDING_MAX_SEQ_LENGTH, EMBEDDING_MODEL, INDEX_DIR
 from rag.indexing import SentenceTransformerEmbedder, build_index, save_index
+from rag.retrieval import TOKENIZER_VERSION, save_bm25
 
 
 def main() -> int:
@@ -57,6 +58,10 @@ def main() -> int:
         source_chunks_file=args.chunks.name,
     )
     print(f"Embedded {meta['n_vectors']} chunks ({meta['dimension']} dims) in {elapsed:.1f}s")
+
+    start = time.perf_counter()
+    save_bm25(args.out, chunks)
+    print(f"Built BM25 index (tokenizer {TOKENIZER_VERSION}) in {time.perf_counter() - start:.1f}s")
     print(f"Saved index to {args.out}")
     return 0
 
