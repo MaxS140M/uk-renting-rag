@@ -1,0 +1,42 @@
+[
+  {
+    "question": "How long does my landlord have to protect my deposit?",
+    "tests": "single fact: deposits"
+  },
+  {
+    "question": "Can my landlord evict me without giving a reason?",
+    "tests": "Renters' Rights Act change"
+  },
+  {
+    "question": "How much notice does my landlord have to give before increasing my rent, and can I challenge it?",
+    "tests": "two-part question: rent increases"
+  },
+  {
+    "question": "Who is responsible for fixing a broken boiler in my rented flat?",
+    "tests": "repairs"
+  },
+  {
+    "question": "Can a landlord refuse to rent to me because I get Universal Credit?",
+    "tests": "discrimination (new rules)"
+  },
+  {
+    "question": "What fees is a letting agent allowed to charge me?",
+    "tests": "Tenant Fees Act"
+  },
+  {
+    "question": "Does a landlord need a licence to rent a house to five people who aren't related?",
+    "tests": "HMO licensing"
+  },
+  {
+    "question": "What can I do about damp and mould in my council flat?",
+    "tests": "social housing"
+  },
+  {
+    "question": "What is the average rent for a one-bedroom flat in Manchester?",
+    "tests": "unanswerable"
+  },
+  {
+    "question": "How do I apply for a mortgage to buy my first home?",
+    "tests": "unanswerable (off-topic)"
+  }
+]
