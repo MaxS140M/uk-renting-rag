@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 
 from rag.chunking import chunk_document
-from rag.eval_schema import EvalItem
-from rag.eval_utils import (
+from rag.evaluation.schema import EvalItem
+from rag.evaluation.utils import (
     EvidenceMapper,
     corpus_fingerprint,
     document_passages,

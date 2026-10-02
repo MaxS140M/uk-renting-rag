@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from difflib import SequenceMatcher
 from pathlib import Path
 
-from rag.eval_schema import EvalItem, Evidence
+from rag.evaluation.schema import EvalItem, Evidence
 from rag.retrieval import tokenize
 
 # --- Text normalisation and quote matching ----------------------------------------------------

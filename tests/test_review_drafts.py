@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from rag.eval_schema import EvalItem, append_item, load_items
+from rag.evaluation.schema import EvalItem, append_item, load_items
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "review_drafts.py"

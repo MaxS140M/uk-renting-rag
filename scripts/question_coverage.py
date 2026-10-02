@@ -15,8 +15,8 @@ from collections import Counter
 from pathlib import Path
 
 from rag.config import PROJECT_ROOT, RAW_DIR
-from rag.eval_schema import QUESTION_TYPES, EvalItem, load_items
-from rag.eval_utils import load_corpus
+from rag.evaluation.schema import QUESTION_TYPES, EvalItem, load_items
+from rag.evaluation.utils import load_corpus
 
 QUESTIONS_FILE = PROJECT_ROOT / "eval" / "questions.jsonl"
 OUT_FILE = PROJECT_ROOT / "eval" / "coverage.md"

@@ -21,8 +21,8 @@ from pathlib import Path
 from rag.chunking import chunk_documents
 from rag.cli import add_retrieval_args, config_from_args
 from rag.config import PROJECT_ROOT, RAW_DIR, RAGConfig
-from rag.eval_schema import parse_items
-from rag.eval_utils import corpus_fingerprint, load_corpus, type_counts, validate_items
+from rag.evaluation.schema import parse_items
+from rag.evaluation.utils import corpus_fingerprint, load_corpus, type_counts, validate_items
 
 QUESTIONS_FILE = PROJECT_ROOT / "eval" / "questions.jsonl"
 

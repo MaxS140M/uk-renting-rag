@@ -16,8 +16,8 @@ import math
 import sys
 
 from rag.config import PROJECT_ROOT
+from rag.evaluation.metrics import paired_bootstrap_ci
 from rag.experiment import Experiment, changed_settings, load_experiments
-from rag.metrics import paired_bootstrap_ci
 from rag.prompts import PROMPT_VERSION
 
 EVAL_DIR = PROJECT_ROOT / "eval"

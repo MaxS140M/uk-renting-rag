@@ -2,7 +2,7 @@
 
 import pytest
 
-from rag.metrics import (
+from rag.evaluation.metrics import (
     cohens_kappa,
     evidence_recall_at_k,
     first_relevant_rank,

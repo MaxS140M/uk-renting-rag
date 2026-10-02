@@ -8,8 +8,8 @@ from pathlib import Path
 import pytest
 
 from rag.chunking import chunk_document
-from rag.eval_schema import EvalItem, append_item
-from rag.eval_utils import load_corpus, validate_items
+from rag.evaluation.schema import EvalItem, append_item
+from rag.evaluation.utils import load_corpus, validate_items
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLE = ROOT / "data" / "sample"

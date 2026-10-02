@@ -32,9 +32,8 @@ from rag.config import (
     PROJECT_ROOT,
     RAW_DIR,
 )
-from rag.eval_schema import load_items
-from rag.eval_utils import EvidenceMapper, corpus_fingerprint, load_corpus
-from rag.evaluation import (
+from rag.evaluation.judges import Judge
+from rag.evaluation.runner import (
     HeldoutRefused,
     check_heldout_allowed,
     estimate_generation_cost,
@@ -45,10 +44,11 @@ from rag.evaluation import (
     update_summary_csv,
     write_records,
 )
+from rag.evaluation.schema import load_items
+from rag.evaluation.utils import EvidenceMapper, corpus_fingerprint, load_corpus
 from rag.experiment import ensure_index, load_experiments, load_index_chunks
 from rag.factory import build_retriever
 from rag.generate import Generator, create_client
-from rag.judges import Judge
 from rag.llm_cache import CachingClient, LLMCache, streaming_sender
 from rag.prompts import PROMPT_VERSION
 from rag.retrieval import RetrievalResult

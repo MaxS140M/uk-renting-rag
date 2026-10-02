@@ -14,7 +14,7 @@ import time
 
 from rag.chunking import get_token_counter
 from rag.config import EMBEDDING_MODEL, PROJECT_ROOT, RAW_DIR
-from rag.eval_utils import load_corpus
+from rag.evaluation.utils import load_corpus
 from rag.experiment import ensure_index, load_experiments
 from rag.factory import build_retriever
 

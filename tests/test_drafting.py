@@ -9,9 +9,9 @@ from pathlib import Path
 import pytest
 from anthropic.resources.messages import Messages
 
-from rag.drafting import draft_questions, parse_json_array
-from rag.eval_schema import append_item, load_items
-from rag.eval_utils import load_corpus
+from rag.evaluation.drafting import draft_questions, parse_json_array
+from rag.evaluation.schema import append_item, load_items
+from rag.evaluation.utils import load_corpus
 
 ROOT = Path(__file__).resolve().parent.parent
 SAMPLE = ROOT / "data" / "sample"

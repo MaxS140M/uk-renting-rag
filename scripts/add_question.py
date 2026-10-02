@@ -17,7 +17,8 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from rag.authoring import (
+from rag.config import PROJECT_ROOT, RAW_DIR
+from rag.evaluation.authoring import (
     Aborted,
     ask,
     ask_multiline,
@@ -26,8 +27,7 @@ from rag.authoring import (
     collect_evidence,
     show_passages,
 )
-from rag.config import PROJECT_ROOT, RAW_DIR
-from rag.eval_schema import (
+from rag.evaluation.schema import (
     EvalItem,
     Evidence,
     append_item,
@@ -36,7 +36,7 @@ from rag.eval_schema import (
     next_id,
     parse_items,
 )
-from rag.eval_utils import load_corpus, question_similarity
+from rag.evaluation.utils import load_corpus, question_similarity
 
 QUESTIONS_FILE = PROJECT_ROOT / "eval" / "questions.jsonl"
 DRAFTS_FILE = PROJECT_ROOT / "eval" / "drafts.jsonl"

@@ -19,7 +19,7 @@ from collections import defaultdict
 from pathlib import Path
 
 from rag.config import PROJECT_ROOT
-from rag.eval_schema import load_items
+from rag.evaluation.schema import load_items
 
 EVAL_DIR = PROJECT_ROOT / "eval"
 OUT = EVAL_DIR / "ERROR_ANALYSIS.md"

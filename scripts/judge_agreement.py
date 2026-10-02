@@ -20,10 +20,10 @@ import textwrap
 from collections import Counter
 from pathlib import Path
 
-from rag.authoring import Aborted, ask
 from rag.config import PROJECT_ROOT
+from rag.evaluation.authoring import Aborted, ask
+from rag.evaluation.metrics import cohens_kappa, percent_agreement
 from rag.experiment import load_experiments, load_index_chunks
-from rag.metrics import cohens_kappa, percent_agreement
 
 EVAL_DIR = PROJECT_ROOT / "eval"
 LABELS_FILE = EVAL_DIR / "judge_labels.jsonl"

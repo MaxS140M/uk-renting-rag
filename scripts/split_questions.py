@@ -18,8 +18,8 @@ from collections import Counter
 from pathlib import Path
 
 from rag.config import PROJECT_ROOT
-from rag.eval_schema import EvalItem, load_items, write_items
-from rag.eval_utils import stratified_sample
+from rag.evaluation.schema import EvalItem, load_items, write_items
+from rag.evaluation.utils import stratified_sample
 
 QUESTIONS_FILE = PROJECT_ROOT / "eval" / "questions.jsonl"
 HELDOUT_SIZE = 20

@@ -14,10 +14,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
-from rag.eval_schema import EvalItem
-from rag.eval_utils import EvidenceMapper
-from rag.judges import Judge, verdict_dict
-from rag.metrics import (
+from rag.evaluation.judges import Judge, verdict_dict
+from rag.evaluation.metrics import (
     evidence_recall_at_k,
     first_relevant_rank,
     mean,
@@ -25,6 +23,8 @@ from rag.metrics import (
     recall_at_k,
     reciprocal_rank,
 )
+from rag.evaluation.schema import EvalItem
+from rag.evaluation.utils import EvidenceMapper
 from rag.pipeline import cited_sources, is_refusal
 from rag.retrieval import RetrievalResult, Retriever
 

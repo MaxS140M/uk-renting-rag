@@ -7,9 +7,8 @@ from types import SimpleNamespace
 import pytest
 
 from rag.config import RAGConfig
-from rag.eval_schema import EvalItem
-from rag.eval_utils import EvidenceMapper
-from rag.evaluation import (
+from rag.evaluation.judges import Judge
+from rag.evaluation.runner import (
     HeldoutRefused,
     check_heldout_allowed,
     estimate_generation_cost,
@@ -19,8 +18,9 @@ from rag.evaluation import (
     summarise,
     update_summary_csv,
 )
+from rag.evaluation.schema import EvalItem
+from rag.evaluation.utils import EvidenceMapper
 from rag.generate import Generator
-from rag.judges import Judge
 from rag.llm_cache import CachingClient, LLMCache, LLMReply
 from rag.retrieval import RetrievalResult, Retriever
 

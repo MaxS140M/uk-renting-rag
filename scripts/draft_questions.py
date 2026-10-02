@@ -32,12 +32,17 @@ from rag.config import (
     PROJECT_ROOT,
     RAW_DIR,
 )
-from rag.drafting import draft_questions
-from rag.eval_schema import append_item, parse_items
-from rag.eval_utils import load_corpus
+from rag.evaluation.drafting import draft_questions
+from rag.evaluation.schema import append_item, parse_items
+from rag.evaluation.testset_generation import (
+    DEFAULT_MIX,
+    estimate_cost,
+    generate_test_set,
+    topic_list,
+)
+from rag.evaluation.utils import load_corpus
 from rag.generate import MissingAPIKeyError, create_client
 from rag.llm_cache import LLMCache
-from rag.testset_generation import DEFAULT_MIX, estimate_cost, generate_test_set, topic_list
 
 DRAFTS_FILE = PROJECT_ROOT / "eval" / "drafts.jsonl"
 OVERVIEW_FILE = PROJECT_ROOT / "eval" / "corpus_overview.md"

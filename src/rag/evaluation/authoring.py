@@ -11,8 +11,8 @@ import textwrap
 from collections.abc import Mapping
 
 from rag.chunking import split_sentences
-from rag.eval_schema import MIN_QUOTE_CHARS, QUESTION_TYPES, EvalItem, Evidence
-from rag.eval_utils import document_passages, normalise, quote_count
+from rag.evaluation.schema import MIN_QUOTE_CHARS, QUESTION_TYPES, EvalItem, Evidence
+from rag.evaluation.utils import document_passages, normalise, quote_count
 from rag.retrieval import BM25Retriever
 
 TYPE_HELP = {

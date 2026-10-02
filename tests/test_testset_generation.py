@@ -9,9 +9,7 @@ from types import SimpleNamespace
 import pytest
 from anthropic.resources.beta.messages import Messages as BetaMessages
 
-from rag.eval_utils import load_corpus
-from rag.llm_cache import LLMCache, LLMReply, request_key
-from rag.testset_generation import (
+from rag.evaluation.testset_generation import (
     DEFAULT_MIX,
     estimate_cost,
     evidence_request,
@@ -19,6 +17,8 @@ from rag.testset_generation import (
     question_request,
     topic_list,
 )
+from rag.evaluation.utils import load_corpus
+from rag.llm_cache import LLMCache, LLMReply, request_key
 
 ROOT = Path(__file__).resolve().parent.parent
 QUOTE_30 = (

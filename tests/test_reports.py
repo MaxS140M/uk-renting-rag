@@ -3,7 +3,7 @@
 import importlib.util
 from pathlib import Path
 
-from rag.eval_schema import EvalItem
+from rag.evaluation.schema import EvalItem
 from rag.experiment import load_experiments
 
 ROOT = Path(__file__).resolve().parent.parent

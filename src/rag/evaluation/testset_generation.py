@@ -23,8 +23,8 @@ from dataclasses import dataclass, field
 
 from pydantic import ValidationError
 
-from rag.eval_schema import EvalItem, next_id
-from rag.eval_utils import question_similarity, quote_count
+from rag.evaluation.schema import EvalItem, next_id
+from rag.evaluation.utils import question_similarity, quote_count
 from rag.llm_cache import LLMCache, LLMReply, streaming_sender
 
 DEFAULT_MIX = {"factual": 80, "multi_passage": 25, "informal": 12, "unanswerable": 13}

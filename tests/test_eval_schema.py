@@ -3,7 +3,7 @@
 import pytest
 from pydantic import ValidationError
 
-from rag.eval_schema import EvalItem, ItemFileError, append_item, load_items, next_id
+from rag.evaluation.schema import EvalItem, ItemFileError, append_item, load_items, next_id
 
 QUOTE_A = "Your landlord must protect your deposit within 30 days."
 QUOTE_B = "Letting agents cannot charge fees for viewings or references."

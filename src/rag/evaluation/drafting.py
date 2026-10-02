@@ -15,8 +15,8 @@ from dataclasses import dataclass
 
 from pydantic import ValidationError
 
-from rag.eval_schema import EvalItem, next_id
-from rag.eval_utils import quote_count
+from rag.evaluation.schema import EvalItem, next_id
+from rag.evaluation.utils import quote_count
 
 DRAFT_SYSTEM_PROMPT = """\
 You help build an evaluation set for a question-answering system over UK GOV.UK guidance on \

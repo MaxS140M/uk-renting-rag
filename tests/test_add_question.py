@@ -6,8 +6,8 @@ from pathlib import Path
 
 import pytest
 
-from rag.authoring import parse_selection, sentence_units
-from rag.eval_schema import load_items
+from rag.evaluation.authoring import parse_selection, sentence_units
+from rag.evaluation.schema import load_items
 
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPT = ROOT / "scripts" / "add_question.py"

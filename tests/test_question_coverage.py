@@ -3,8 +3,8 @@
 import importlib.util
 from pathlib import Path
 
-from rag.eval_schema import EvalItem
-from rag.eval_utils import load_corpus
+from rag.evaluation.schema import EvalItem
+from rag.evaluation.utils import load_corpus
 
 ROOT = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location(

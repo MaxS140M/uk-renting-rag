@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from rag.eval_schema import EvalItem
+from rag.evaluation.schema import EvalItem
 
 ROOT = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location(
