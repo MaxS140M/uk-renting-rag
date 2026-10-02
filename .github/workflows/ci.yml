@@ -22,7 +22,7 @@ jobs:
           # several GB of CUDA libraries that CI never uses.
           TORCH_VERSION=$(grep -E '^torch==' requirements.txt | cut -d= -f3)
           pip install "torch==${TORCH_VERSION}" --index-url https://download.pytorch.org/whl/cpu
-          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
           pip install -e . --no-deps
 
       # Chunking tests download the embedding model's tokenizer; cache it between runs.
@@ -42,3 +42,39 @@ jobs:
       # Every evidence quote in the test set must still exist in the frozen corpus snapshot.
       - name: Validate evaluation test set
         run: python scripts/validate_questions.py
+
+  docker:
+    # Builds the production image (no push) and checks the container starts with its
+    # baked-in models and index. No API key is given, so /health reports "degraded".
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build image
+        run: docker build -t uk-renting-rag .
+
+      - name: Image size
+        run: |
+          docker image ls uk-renting-rag --format "Image size: {{.Size}}"
+
+      - name: Load the pipeline with no network access
+        # Proves the models and index are baked in: nothing is downloaded at start-up.
+        run: |
+          docker run --rm --network none uk-renting-rag python -c "
+          from app.service import DemoService
+          service = DemoService()
+          service.load()
+          assert service.pipeline is not None, service.load_error
+          print('Loaded offline:', service.health())
+          "
+
+      - name: Start the server and check /health
+        run: |
+          docker run -d --name app -p 7860:7860 uk-renting-rag
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:7860/health > health.json; then break; fi
+            sleep 2
+          done
+          cat health.json
+          grep -q '"index_loaded":true' health.json
+          docker logs app | tail -20
