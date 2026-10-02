@@ -20,7 +20,7 @@ from datetime import UTC, date, datetime
 import anthropic
 
 from rag.config import PROJECT_ROOT
-from rag.experiment import Experiment, load_experiments
+from rag.experiment import Experiment, load_experiments, load_index_chunks
 from rag.generate import Generator, MissingAPIKeyError, create_client
 from rag.pipeline import AnswerResult, RAGPipeline
 
@@ -160,6 +160,7 @@ class DemoService:
         self.pipeline = pipeline
         self.llm_configured = pipeline is not None
         self.load_error: str | None = None
+        self.guidance_date: str | None = None  # ISO date the corpus was retrieved from GOV.UK
         self.rate_limiter = RateLimiter(self.settings.rate_limit_per_minute, clock=clock)
         self.daily_cap = DailyCap(self.settings.daily_llm_cap, today=today)
         self._retrieval_lock = threading.Lock()
@@ -191,6 +192,8 @@ class DemoService:
                 log.warning("ANTHROPIC_API_KEY is not set: answers are disabled")
             pipeline = RAGPipeline(config, generator=Generator(config, client=client))
             pipeline.retrieve("warm-up question about tenancy deposits")  # first-call costs
+            chunks = load_index_chunks(config.index_dir)
+            self.guidance_date = max(c["date_retrieved"] for c in chunks)
             self.pipeline = pipeline
             log.info("Loaded config %s", self.settings.config_name)
         except Exception as err:  # keep serving /health, which reports the problem
@@ -206,6 +209,7 @@ class DemoService:
             "models_loaded": self.pipeline is not None,
             "llm_configured": self.llm_configured,
             "config_name": self.settings.config_name,
+            "guidance_date": self.guidance_date,
             "embedding_model": config.embedding_model if config else None,
             "daily_llm_calls_remaining": self.daily_cap.remaining,
             "error": "The search index failed to load." if self.load_error else None,

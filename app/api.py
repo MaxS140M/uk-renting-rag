@@ -56,6 +56,7 @@ class Health(BaseModel):
     models_loaded: bool
     llm_configured: bool
     config_name: str
+    guidance_date: str | None
     embedding_model: str | None
     daily_llm_calls_remaining: int
     error: str | None
