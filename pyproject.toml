@@ -17,14 +17,17 @@ where = ["src"]
 [tool.ruff]
 line-length = 100
 target-version = "py311"
-src = ["src", "app", "tests"]
+src = ["src", "."]
 
 [tool.ruff.lint]
 # E/F: pycodestyle + pyflakes errors, I: import sorting, B: likely bugs, UP: modern syntax
 select = ["E", "F", "I", "B", "UP"]
 
+[tool.ruff.lint.isort]
+known-first-party = ["rag", "app"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-# Make `import rag` work without installing the package (src layout)
-pythonpath = ["src"]
+# Make `import rag` (src layout) and `import app` work without installing anything
+pythonpath = ["src", "."]
 addopts = "-ra"

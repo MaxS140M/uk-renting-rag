@@ -36,14 +36,25 @@ class Generation:
     output_tokens: int
 
 
-def create_client() -> anthropic.Anthropic:
-    """Create an Anthropic client, loading ANTHROPIC_API_KEY from the project's .env file."""
+def create_client(
+    timeout: float | None = None, max_retries: int | None = None
+) -> anthropic.Anthropic:
+    """Create an Anthropic client, loading ANTHROPIC_API_KEY from the project's .env file.
+
+    ``timeout`` (seconds) and ``max_retries`` override the SDK defaults (10 minutes, 2
+    retries), which are far too patient for an interactive demo.
+    """
     load_dotenv(PROJECT_ROOT / ".env")
     if not os.environ.get("ANTHROPIC_API_KEY"):
         raise MissingAPIKeyError(
             "ANTHROPIC_API_KEY is not set. Copy .env.example to .env and add your key."
         )
-    return anthropic.Anthropic()
+    options = {}
+    if timeout is not None:
+        options["timeout"] = timeout
+    if max_retries is not None:
+        options["max_retries"] = max_retries
+    return anthropic.Anthropic(**options)
 
 
 class Generator:

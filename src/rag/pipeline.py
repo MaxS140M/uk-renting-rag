@@ -103,11 +103,21 @@ class RAGPipeline:
 
     def answer(self, question: str) -> AnswerResult:
         total_start = time.perf_counter()
-
         timings: dict[str, float] = {}
         start = time.perf_counter()
         results = self.retrieve(question, timings)
         timings["retrieval"] = _ms(start)
+        return self.answer_from(question, results, timings, total_start)
+
+    def answer_from(
+        self,
+        question: str,
+        results: list[RetrievalResult],
+        timings: dict[str, float],
+        total_start: float,
+    ) -> AnswerResult:
+        """Generate the answer from passages already retrieved (lets callers retrieve and
+        generate separately, e.g. to serialise only the CPU-bound retrieval step)."""
 
         if not results:  # nothing to ground an answer in, so do not call the LLM at all
             return AnswerResult(
