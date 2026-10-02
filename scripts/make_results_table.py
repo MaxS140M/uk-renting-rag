@@ -198,12 +198,22 @@ def judge_section(stats: dict | None) -> list[str]:
             "(`scripts/judge_agreement.py`), so faithfulness and correctness are provisional.",
         ]
     trusted = stats["trusted"]
+    blind = stats.get("blind")
+    caveat = (
+        f" My initial blind labels marked every answer faithful and correct, so they could not "
+        f"measure agreement (kappa {blind['faithfulness_kappa']:.2f}); these figures are after "
+        "reviewing each disagreement with the judge's reasoning visible, which is not blind and "
+        "therefore optimistic. In that review the judge was right in most disputes, and its "
+        "errors were mostly over-strict faithfulness calls."
+        if blind
+        else ""
+    )
     return [
         f"Judge checked against my own labels on {stats['n']} randomly sampled answers "
         f"([details](judge_agreement.md)): faithfulness agreement "
         f"{stats['faithfulness_agreement']:.0%} (kappa {stats['faithfulness_kappa']:.2f}), "
         f"correctness agreement {stats['correctness_agreement']:.0%} "
-        f"(kappa {stats['correctness_kappa']:.2f}).",
+        f"(kappa {stats['correctness_kappa']:.2f}).{caveat}",
         ""
         if all(trusted.values())
         else "**Agreement is below the trust threshold (kappa 0.6) for "

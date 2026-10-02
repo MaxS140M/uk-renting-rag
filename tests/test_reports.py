@@ -188,3 +188,25 @@ def test_headline_flags_differences_that_could_be_chance():
     per_question = {"dense_baseline": base, "hybrid_rerank": best}
     md = results_table.build_markdown(ROWS, EXPERIMENTS, None, [], per_question)
     assert "95% CI" in md and "not statistically clear" in md
+
+
+def test_adjudicated_judge_figures_are_labelled_as_not_blind():
+    blind = {
+        "n": 27,
+        "faithfulness_agreement": 0.48,
+        "faithfulness_kappa": 0.0,
+        "correctness_agreement": 0.59,
+        "correctness_kappa": 0.0,
+        "trusted": {"faithfulness": False, "correctness": False},
+    }
+    stats = {
+        "n": 27,
+        "faithfulness_agreement": 0.85,
+        "faithfulness_kappa": 0.71,
+        "correctness_agreement": 0.96,
+        "correctness_kappa": 0.93,
+        "trusted": {"faithfulness": True, "correctness": True},
+        "blind": blind,
+    }
+    md = results_table.build_markdown(ROWS, EXPERIMENTS, stats, [])
+    assert "not blind" in md and "kappa 0.71" in md and "kappa 0.00" in md
