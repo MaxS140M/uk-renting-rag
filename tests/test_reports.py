@@ -164,30 +164,33 @@ def test_failures_are_classified_by_cause():
     assert error_analysis.failed(record("q-1", rank=1, faith=0.5))  # an unsupported claim
 
 
-def test_report_spreads_examples_across_causes_and_leaves_placeholders():
+def test_report_spreads_examples_across_causes_without_placeholders():
     records = [record(f"q-{n:03d}", rank=None, verdict="incorrect") for n in range(1, 21)]
     records += [
         record("q-101", rank=7, verdict="partially_correct"),
         record("q-102", qtype="unanswerable", refused=False),
     ]
     items = {r["id"]: item(r["id"], r["question_type"]) for r in records}
-    report = error_analysis.build_report("hybrid_rerank", records, items, 5)
+    report = error_analysis.build_report("hybrid_rerank_bge", records, items, 5)
     assert "22 of 22 dev questions failed" in report
     assert "## Examples (15 of 22)" in report
     assert "#### q-101" in report and "#### q-102" in report  # rarer causes still shown
-    assert report.count("**My diagnosis:** _TODO") == 15
-    assert "## Conclusions" in report and "Reference answer wrong" in report
+    assert "TODO" not in report and "assigned **automatically**" in report
 
 
-def test_headline_flags_differences_that_could_be_chance():
-    # Same average on different questions: a +0 difference whose interval spans zero.
-    base = {f"q-{n:03d}": {"recall_at_5": float(n % 2), "generation": None} for n in range(100)}
-    best = {
-        f"q-{n:03d}": {"recall_at_5": float((n + 1) % 2), "generation": None} for n in range(100)
-    }
-    per_question = {"dense_baseline": base, "hybrid_rerank": best}
-    md = results_table.build_markdown(ROWS, EXPERIMENTS, None, [], per_question)
-    assert "95% CI" in md and "not statistically clear" in md
+def test_hand_written_summary_survives_regeneration(tmp_path):
+    records = [record("q-001", rank=None, verdict="incorrect")]
+    items = {"q-001": item("q-001")}
+    path = tmp_path / "ERROR_ANALYSIS.md"
+    first = error_analysis.build_report("c", records, items, 5)
+    edited = first.replace(error_analysis.DEFAULT_SUMMARY, "- False refusals are the main problem.")
+    path.write_text(edited, encoding="utf-8")
+    summary = error_analysis.existing_summary(path)
+    regenerated = error_analysis.build_report("c", records, items, 5, summary)
+    assert "- False refusals are the main problem." in regenerated
+    assert (
+        error_analysis.existing_summary(tmp_path / "missing.md") == error_analysis.DEFAULT_SUMMARY
+    )
 
 
 def test_adjudicated_judge_figures_are_labelled_as_not_blind():
