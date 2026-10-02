@@ -1,0 +1,28 @@
+{
+  "n": 27,
+  "faithfulness_agreement": 0.8518518518518519,
+  "faithfulness_kappa": 0.7065217391304347,
+  "correctness_agreement": 0.9629629629629629,
+  "correctness_kappa": 0.9262295081967213,
+  "correct_binary_agreement": 0.9629629629629629,
+  "correct_binary_kappa": 0.9221902017291065,
+  "trusted": {
+    "faithfulness": true,
+    "correctness": true
+  },
+  "method": "blind labels, then every disagreement reviewed with the judge's reasoning visible and the label corrected where the judge was right (not blind, so agreement is optimistic)",
+  "blind": {
+    "n": 27,
+    "faithfulness_agreement": 0.48148148148148145,
+    "faithfulness_kappa": 0.0,
+    "correctness_agreement": 0.5925925925925926,
+    "correctness_kappa": 0.0,
+    "correct_binary_agreement": 0.5925925925925926,
+    "correct_binary_kappa": 0.0,
+    "trusted": {
+      "faithfulness": false,
+      "correctness": false
+    },
+    "method": "labelled by hand without seeing the judge's verdict"
+  }
+}

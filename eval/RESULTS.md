@@ -42,7 +42,7 @@ Each experiment changes one setting from the one it is compared with, so the dif
 
 - **Sample size.** With 99 answerable questions, a single Recall@5 figure is uncertain by roughly ±9 points (95% interval). Differences of a few points between configurations may be noise.
 - **Reference answers were not reviewed by a person** (see [`README.md`](README.md#status-of-human-review)), so correctness has unknown noise from errors in the answer key. Retrieval metrics depend only on the verified quotes.
-- The LLM judge has **not yet been checked against human labels** (`scripts/judge_agreement.py`), so faithfulness and correctness are provisional.
+- Judge checked against my own labels on 27 randomly sampled answers ([details](judge_agreement.md)): faithfulness agreement 85% (kappa 0.71), correctness agreement 96% (kappa 0.93). My initial blind labels marked every answer faithful and correct, so they could not measure agreement (kappa 0.00); these figures are after reviewing each disagreement with the judge's reasoning visible, which is not blind and therefore optimistic. In that review the judge was right in most disputes, and its errors were mostly over-strict faithfulness calls.
 
 ## Held-out result (run once)
 
