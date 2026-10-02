@@ -12,8 +12,8 @@ Drafted by `scripts/error_analysis.py`. Causes were assigned automatically and m
 | Correct passage retrieved but ranked too low (top 10, not in the passages given to the LLM) | 9 |
 | Answer not in the corpus, but the model answered anyway | 0 |
 | Correct passage given to the model, but it ignored or misread it | 40 |
-| Judge error: the answer was actually fine | _TODO after review_ |
-| Reference answer wrong (the test set was not human-reviewed) | _TODO after review_ |
+| Judge error: the answer was actually fine |  |
+| Reference answer wrong (the test set was not human-reviewed) |  |
 
 ## Examples (15 of 65)
 
@@ -45,9 +45,7 @@ Drafted by `scripts/error_analysis.py`. Causes were assigned automatically and m
 
 **Correctness judge:** incorrect: Refused an answerable question (false refusal).
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-025
 
@@ -97,9 +95,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 **Correctness judge:** partially_correct: The answer matches the reference for the older tenancy case: the agreement's notice period applies and a landlord cannot ask for more than 2 months. It does not give the reference's fallback, which is that if the agreement is silent you need at least 2 months' notice. Instead it adds a split by start date (before or after 1 May 2026) that the reference does not mention. For tenancies starting on or after that date it says 2 months, which is consistent with the reference's default. However, it implies a fixed rule for new tenancies and omits the agreement-silent case for older ones. The key facts are mostly present, but the missing fallback and the added date-based framing make it only partially correct.
 **Faithfulness judge:** 88% of claims supported; unsupported: If your tenancy started on or after 1 May 2026, you need to give 2 months' notice.
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-026
 
@@ -136,9 +132,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 **Correctness judge:** correct: The answer states 4 months' notice for sale and that the landlord cannot evict on this ground during the first 12 months of the tenancy, matching the reference. The added nuance that notice can be given before 12 months is up but proceedings cannot start until after is plausible extra detail and doesn't contradict the key facts.
 **Faithfulness judge:** 80% of claims supported; unsupported: After 12 months, the landlord can serve a notice of possession to sell and must give at least 4 months to leave.
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-041
 
@@ -166,9 +160,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 
 **Correctness judge:** incorrect: Refused an answerable question (false refusal).
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-043
 
@@ -196,9 +188,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 
 **Correctness judge:** incorrect: Refused an answerable question (false refusal).
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 ### Correct passage retrieved but ranked too low (top 10, not in the passages given to the LLM)
 
@@ -239,9 +229,6 @@ If your tenancy agreement does not say how much notice you must give, you need t
 **Correctness judge:** correct: The answer says No, a landlord cannot put 'no DSS' in an advert, and ties this to the Renters' Rights Act's action against overt discriminatory practices such as 'no DSS' adverts. This matches the reference. The extra detail on fines (£7,000, with further £7,000 every 28 days) is additional and does not contradict the reference. It does not explicitly state that landlords cannot discourage someone from a tenancy because they receive benefits, but the main point is covered.
 **Faithfulness judge:** 80% of claims supported; unsupported: If the advert remains online more than 28 days after being reported, the landlord can be fined an additional £7,000 every 28 days until it is removed.
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
-
-**Proposed fix:** _TODO_
 
 #### q-045
 
@@ -284,9 +271,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 **Correctness judge:** correct: The answer gives 10 working days for significant hazards and 24 hours for emergency hazards, matching the reference. Its opening line is slightly loose, saying 10 working days generally, but it then clarifies the split by hazard type. The extra details on how day one is counted and the 3-working-day written summary are consistent with the guidance and do not contradict the reference.
 **Faithfulness judge:** 80% of claims supported; unsupported: Under Awaab's Law, a housing association landlord must investigate mould within 10 working days of becoming aware of it.
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-059
 
@@ -321,9 +306,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 
 **Correctness judge:** incorrect: Refused an answerable question (false refusal).
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-061
 
@@ -353,9 +336,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 
 **Correctness judge:** incorrect: Refused an answerable question (false refusal).
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-068
 
@@ -396,9 +377,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 **Correctness judge:** partially_correct: The answer says yes, the tenancy automatically becomes periodic on 1 May 2026, which matches the reference's main point. But it adds a condition, 'if your fixed-term tenancy started before 1 May 2026', which the reference does not give. It also says the notice period in the agreement still applies for fixed terms ending on or after 1 May, which conflicts with the reference's statement that any end date in the agreement no longer applies. It also omits that the tenant did not need to do anything, and it uses the future tense ('will') although the date has passed. The core conclusion is right, but the caveats are confusing and partly contradict the reference.
 **Faithfulness judge:** 100% of claims supported
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
-
-**Proposed fix:** _TODO_
+_
 
 ### Correct passage given to the model, but it ignored or misread it
 
@@ -439,9 +418,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 **Correctness judge:** partially_correct: The answer correctly states the maximum deposit is 5 weeks' rent because annual rent (£12,000) is under £50,000. However, it makes a calculation error: 5 weeks' rent on £1,000 a month is about £1,154 (£12,000/52 x 5), not £5,000. It also gives the holding deposit as £1,000 when one week's rent is about £231. The main conclusion (5 weeks' rent) matches, but the incorrect figures are significant errors that would mislead the user.
 **Faithfulness judge:** 67% of claims supported; unsupported: In this case the maximum deposit would be up to £5,000.; One week's rent in this case is £1,000.
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-006
 
@@ -483,9 +460,7 @@ If your tenancy agreement does not say how much notice you must give, you need t
 **Correctness judge:** partially_correct: The answer states the key fact correctly: the landlord must return the deposit within 10 days of both parties agreeing the amount. However, it then says the landlord is 'now overdue' because a month has passed. That is unsupported, since the 10-day clock only starts once the amount is agreed, and the user has not said it has been. This is a minor error that does not change the main conclusion. The remaining advice about raising a dispute and contacting the scheme is accurate extra detail.
 **Faithfulness judge:** 86% of claims supported; unsupported: Since a month has passed, your landlord is now overdue.
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
 
-**Proposed fix:** _TODO_
 
 #### q-009
 
@@ -519,9 +494,6 @@ If your tenancy agreement does not say how much notice you must give, you need t
 
 **Correctness judge:** incorrect: Refused an answerable question (false refusal).
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
-
-**Proposed fix:** _TODO_
 
 #### q-010
 
@@ -595,18 +567,5 @@ If your tenancy agreement does not say how much notice you must give, you need t
 **Correctness judge:** correct: The answer states the £50 cap for changing the tenancy agreement (adding a partner) and notes a higher amount is allowed only if the agent can prove the work actually costs more. This matches the reference. The extra detail about reporting to the local council is accurate and does not contradict it.
 **Faithfulness judge:** 33% of claims supported; unsupported: The agent can charge up to £50 for adding your partner to the tenancy agreement.; If the agent asks you to pay more than £50, they must provide proof that the work costs more than this amount.
 
-**My diagnosis:** _TODO: confirm the cause, or move this example to judge error / reference answer wrong._
-
-**Proposed fix:** _TODO_
-
 ### Judge error: the answer was actually fine
 
-_TODO: move examples here after checking them._
-
-### Reference answer wrong (the test set was not human-reviewed)
-
-_TODO: move examples here after checking them._
-
-## Conclusions
-
-_TODO: the main weaknesses, in order of impact, and which fixes to try first._
