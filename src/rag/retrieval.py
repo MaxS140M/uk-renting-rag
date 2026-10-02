@@ -218,13 +218,13 @@ class BM25Retriever(Retriever):
         path = index_dir / BM25_FILE
         if not path.exists():
             raise FileNotFoundError(
-                f"No BM25 index in {index_dir}. Build it with: python scripts/build_index.py"
+                f"No BM25 index in {index_dir}. Build it with: python scripts/data/build_index.py"
             )
         data = json.loads(path.read_text(encoding="utf-8"))
         if data["tokenizer_version"] != TOKENIZER_VERSION:
             raise ValueError(
                 f"BM25 index uses tokenizer {data['tokenizer_version']}, but the code uses "
-                f"{TOKENIZER_VERSION}. Rebuild it with: python scripts/build_index.py"
+                f"{TOKENIZER_VERSION}. Rebuild it with: python scripts/data/build_index.py"
             )
         lines = (index_dir / "chunks.jsonl").read_text(encoding="utf-8").splitlines()
         chunks = [json.loads(line) for line in lines if line]

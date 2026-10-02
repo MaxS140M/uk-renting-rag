@@ -119,7 +119,7 @@ def test_reviewing_a_draft_saves_an_llm_draft_reviewed_item(tmp_path, doc, fake_
     result = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "add_question.py"),
+            str(ROOT / "scripts" / "testset" / "add_question.py"),
             "--questions",
             str(questions_file),
             "--corpus",

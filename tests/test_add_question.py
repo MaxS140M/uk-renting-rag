@@ -10,7 +10,7 @@ from rag.evaluation.authoring import parse_selection, sentence_units
 from rag.evaluation.schema import load_items
 
 ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "scripts" / "add_question.py"
+SCRIPT = ROOT / "scripts" / "testset" / "add_question.py"
 SAMPLE = ROOT / "data" / "sample"
 
 

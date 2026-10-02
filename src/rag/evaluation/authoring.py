@@ -1,6 +1,6 @@
 """Interactive helpers for writing and reviewing evaluation items at the terminal.
 
-Shared by scripts/add_question.py and scripts/review_drafts.py: prompts that can be
+Shared by scripts/testset/add_question.py and scripts/testset/review_drafts.py: prompts that can be
 aborted cleanly, the question-type menu, keyword search over the documents' own
 paragraphs, and selecting an exact quote from a passage.
 """

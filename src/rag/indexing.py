@@ -107,14 +107,14 @@ def load_index(index_dir: Path, embedding_model: str) -> LoadedIndex:
     meta_path = index_dir / META_FILE
     if not meta_path.exists():
         raise FileNotFoundError(
-            f"No index found in {index_dir}. Build it with: python scripts/build_index.py"
+            f"No index found in {index_dir}. Build it with: python scripts/data/build_index.py"
         )
     meta = json.loads(meta_path.read_text(encoding="utf-8"))
     if meta["embedding_model"] != embedding_model:
         raise IndexMismatchError(
             f"Index in {index_dir} was built with '{meta['embedding_model']}', but queries "
             f"would be embedded with '{embedding_model}'. Rebuild it with: "
-            f"python scripts/build_index.py --model {embedding_model}"
+            f"python scripts/data/build_index.py --model {embedding_model}"
         )
 
     index = faiss.read_index(str(index_dir / INDEX_FILE))

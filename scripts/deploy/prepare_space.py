@@ -5,7 +5,7 @@ out of place on the GitHub README, so the Space gets its own short README, plus 
 files the Docker image needs.
 
 Usage:
-    python scripts/prepare_space.py
+    python scripts/deploy/prepare_space.py
 """
 
 from __future__ import annotations
@@ -23,7 +23,7 @@ INCLUDE = [
     "LICENSE",
     "src",
     "app",
-    "scripts/prepare_deployment.py",
+    "scripts/deploy/prepare_deployment.py",
     "eval/configs.yaml",
     "data/raw",
 ]

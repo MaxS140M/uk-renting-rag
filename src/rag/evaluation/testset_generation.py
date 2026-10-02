@@ -11,7 +11,7 @@ evidence is found by reading the full corpus, not with this project's retriever:
 system under test to find the gold evidence would drop every question it fails on, and
 inflate its scores.
 
-Every output is a draft (author "llm_draft") for review in scripts/review_drafts.py.
+Every output is a draft (author "llm_draft") for review in scripts/testset/review_drafts.py.
 """
 
 from __future__ import annotations

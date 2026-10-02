@@ -34,7 +34,7 @@ Thumbs.db
 # Unreviewed LLM question drafts (work in progress; reviewed items go to eval/questions.jsonl)
 eval/drafts.jsonl
 
-# Per-question evaluation results (large; regenerate with eval/run_eval.py). The summary
+# Per-question evaluation results (large; regenerate with scripts/evaluation/run_eval.py). The summary
 # table and the held-out run log are committed.
 eval/results/*.jsonl
 !eval/results/heldout_runs.jsonl

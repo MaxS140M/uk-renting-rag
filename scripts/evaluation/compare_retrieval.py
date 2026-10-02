@@ -4,8 +4,8 @@ Shows the top-k chunks from dense, BM25, hybrid and hybrid + reranker, with scor
 timings. A qualitative check, not an evaluation: formal metrics come from the eval script.
 
 Usage:
-    python scripts/compare_retrieval.py "How long does my landlord have to protect my deposit?"
-    python scripts/compare_retrieval.py --smoke --out eval/phase3_comparison.md
+    python scripts/evaluation/compare_retrieval.py "How long to protect my deposit?"
+    python scripts/evaluation/compare_retrieval.py --smoke --out eval/phase3_comparison.md
 """
 
 from __future__ import annotations
@@ -104,7 +104,8 @@ def main() -> int:
     header = [
         "# Retrieval comparison",
         "",
-        f"Generated {datetime.now(UTC):%Y-%m-%d %H:%M} UTC by `scripts/compare_retrieval.py` "
+        f"Generated {datetime.now(UTC):%Y-%m-%d %H:%M} UTC by "
+        "`scripts/evaluation/compare_retrieval.py` "
         f"(no LLM calls). Top {args.k} chunks per setup; candidate pool {base.candidate_k}, "
         f"RRF k = {base.rrf_k}, reranker `{reranker}` on {base.reranker_device}. "
         f"**(new)** marks a chunk that is not in the dense top {args.k}. Scores are on "

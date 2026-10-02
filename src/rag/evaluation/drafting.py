@@ -2,7 +2,7 @@
 
 Drafts are a starting point, never test items: they are written to eval/drafts.jsonl with
 author "llm_draft", and only become test items after review and editing in
-scripts/add_question.py --from-draft. Every draft quote is checked against the document,
+scripts/testset/add_question.py --from-draft. Every draft quote is checked against the document,
 because LLMs often paraphrase when asked to quote.
 """
 

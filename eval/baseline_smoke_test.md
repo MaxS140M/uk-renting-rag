@@ -1,6 +1,6 @@
 # Baseline smoke test
 
-Run 2026-10-01 17:09 UTC with `scripts/smoke_test.py`.
+Run 2026-10-01 17:09 UTC with `scripts/evaluation/smoke_test.py`.
 
 Configuration: retriever `dense`, embedding model `sentence-transformers/all-MiniLM-L6-v2`, top_k 5, chunks up to 400 tokens, LLM `claude-haiku-4-5-20251001` (temperature 0.0), prompt `v1`.
 

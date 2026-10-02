@@ -10,7 +10,7 @@ from rag.evaluation.schema import EvalItem
 
 ROOT = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location(
-    "split_questions", ROOT / "scripts" / "split_questions.py"
+    "split_questions", ROOT / "scripts" / "testset" / "split_questions.py"
 )
 split_questions = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(split_questions)

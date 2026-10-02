@@ -199,7 +199,7 @@ def chunk_document(
     overlap_tokens: int = CHUNK_OVERLAP_TOKENS,
     count_tokens: TokenCounter | None = None,
 ) -> list[Chunk]:
-    """Split one document (as saved by scripts/download_docs.py) into chunks.
+    """Split one document (as saved by scripts/data/download_docs.py) into chunks.
 
     Args:
         doc: dict with at least doc_id, title, url, text and date_retrieved.

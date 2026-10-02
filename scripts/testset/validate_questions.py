@@ -5,9 +5,9 @@ maps to a chunk, and that no two questions are duplicates. Exits with code 1 on 
 it can run in CI.
 
 Usage:
-    python scripts/validate_questions.py
-    python scripts/validate_questions.py --show-unanswerable       # check unanswerable items
-    python scripts/validate_questions.py --strict                  # warnings also fail
+    python scripts/testset/validate_questions.py
+    python scripts/testset/validate_questions.py --show-unanswerable   # check unanswerable items
+    python scripts/testset/validate_questions.py --strict              # warnings also fail
 """
 
 from __future__ import annotations

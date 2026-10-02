@@ -3,7 +3,7 @@
 Run once at Docker build time, so the image contains everything it needs and the
 container starts without downloading anything:
 
-    python scripts/prepare_deployment.py              # RAG_CONFIG env var, or the default
+    python scripts/deploy/prepare_deployment.py              # RAG_CONFIG env var, or the default
 """
 
 from __future__ import annotations

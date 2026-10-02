@@ -2,7 +2,7 @@
 correctness (does the answer match the reference answer?).
 
 The judge is a stronger model than the one answering. Its verdicts are only trusted after
-checking them against human labels on a sample (scripts/judge_agreement.py), because an
+checking them against human labels on a sample (scripts/evaluation/judge_agreement.py), because an
 LLM judge can be confidently wrong or biased, for example towards answers that sound like
 its own writing.
 """

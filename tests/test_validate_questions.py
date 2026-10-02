@@ -108,7 +108,7 @@ def run_script(path: Path, *extra: str) -> subprocess.CompletedProcess:
     return subprocess.run(
         [
             sys.executable,
-            str(ROOT / "scripts" / "validate_questions.py"),
+            str(ROOT / "scripts" / "testset" / "validate_questions.py"),
             "--questions",
             str(path),
             "--corpus",

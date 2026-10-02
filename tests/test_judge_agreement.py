@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "scripts" / "judge_agreement.py"
+SCRIPT = ROOT / "scripts" / "evaluation" / "judge_agreement.py"
 spec = importlib.util.spec_from_file_location("judge_agreement", SCRIPT)
 judge_agreement = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(judge_agreement)

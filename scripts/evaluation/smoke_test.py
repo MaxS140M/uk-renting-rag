@@ -3,8 +3,8 @@
 A quick manual check, not an evaluation: rerun it after each phase and compare the outputs.
 
 Usage:
-    python scripts/smoke_test.py
-    python scripts/smoke_test.py --mode hybrid --rerank   # -> eval/smoke_test_hybrid+rerank.md
+    python scripts/evaluation/smoke_test.py
+    python scripts/evaluation/smoke_test.py --mode hybrid --rerank   # -> eval/smoke_test_*.md
 """
 
 from __future__ import annotations
@@ -90,7 +90,7 @@ def main() -> int:
     header = [
         f"# Smoke test: {config.label}",
         "",
-        f"Run {datetime.now(UTC):%Y-%m-%d %H:%M} UTC with `scripts/smoke_test.py`.",
+        f"Run {datetime.now(UTC):%Y-%m-%d %H:%M} UTC with `scripts/evaluation/smoke_test.py`.",
         "",
         f"Configuration: retrieval `{config.label}`, embedding model "
         f"`{config.embedding_model}`, final_k {config.final_k}, chunks up to "

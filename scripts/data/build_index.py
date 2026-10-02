@@ -1,8 +1,8 @@
 """Build the search indexes for data/chunks.jsonl: FAISS (dense) and BM25 (keyword).
 
 Usage:
-    python scripts/build_index.py
-    python scripts/build_index.py --model sentence-transformers/all-mpnet-base-v2 \
+    python scripts/data/build_index.py
+    python scripts/data/build_index.py --model sentence-transformers/all-mpnet-base-v2 \
         --out data/index_mpnet
 """
 
@@ -28,7 +28,7 @@ def main() -> int:
     args = parser.parse_args()
 
     if not args.chunks.exists():
-        print(f"{args.chunks} not found. Run scripts/chunk_corpus.py first.")
+        print(f"{args.chunks} not found. Run scripts/data/chunk_corpus.py first.")
         return 1
     lines = args.chunks.read_text(encoding="utf-8").splitlines()
     chunks = [json.loads(line) for line in lines if line]

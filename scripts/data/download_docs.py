@@ -4,8 +4,8 @@ Uses the GOV.UK Content API (https://www.gov.uk/api/content/<path>), which retur
 main content as structured JSON, so there is no navigation, cookie banner or footer to strip.
 
 Usage:
-    python scripts/download_docs.py            # download pages not already in data/raw/
-    python scripts/download_docs.py --refresh  # re-download everything
+    python scripts/data/download_docs.py            # download pages not already in data/raw/
+    python scripts/data/download_docs.py --refresh  # re-download everything
 """
 
 from __future__ import annotations
@@ -22,9 +22,9 @@ from datetime import UTC, datetime
 from html.parser import HTMLParser
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
-SOURCES_FILE = ROOT / "scripts" / "sources.txt"
-RAW_DIR = ROOT / "data" / "raw"
+from rag.config import RAW_DIR
+
+SOURCES_FILE = Path(__file__).resolve().parent / "sources.txt"  # kept next to this script
 
 API_BASE = "https://www.gov.uk/api/content"
 SITE_BASE = "https://www.gov.uk"

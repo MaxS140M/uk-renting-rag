@@ -1,8 +1,8 @@
 """Chunk every document in data/raw/ and write the result to data/chunks.jsonl.
 
 Usage:
-    python scripts/chunk_corpus.py
-    python scripts/chunk_corpus.py --max-tokens 256 --overlap 32 --out data/chunks_256.jsonl
+    python scripts/data/chunk_corpus.py
+    python scripts/data/chunk_corpus.py --max-tokens 256 --overlap 32 --out data/chunks_256.jsonl
 """
 
 from __future__ import annotations
@@ -31,7 +31,7 @@ def main() -> int:
 
     docs = load_documents(args.raw_dir)
     if not docs:
-        print(f"No documents in {args.raw_dir}. Run scripts/download_docs.py first.")
+        print(f"No documents in {args.raw_dir}. Run scripts/data/download_docs.py first.")
         return 1
 
     chunks = chunk_documents(docs, max_tokens=args.max_tokens, overlap_tokens=args.overlap)

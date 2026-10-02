@@ -9,10 +9,10 @@ Runs use the DEV split. The held-out split is run once, at the very end, for the
 config only (--heldout); a second held-out run needs --force and a logged --reason.
 
 Usage:
-    python eval/run_eval.py                                  # retrieval, all configs
-    python eval/run_eval.py --generate auto                  # + generation: baseline + top 2
-    python eval/run_eval.py --generate dense_baseline,hybrid_rerank
-    python eval/run_eval.py --heldout --configs hybrid_rerank --generate hybrid_rerank
+    python scripts/evaluation/run_eval.py                    # retrieval, all configs
+    python scripts/evaluation/run_eval.py --generate auto    # + answers: baseline + top 2
+    python scripts/evaluation/run_eval.py --generate dense_baseline,hybrid_rerank
+    python scripts/evaluation/run_eval.py --heldout --configs hybrid_rerank --generate hybrid_rerank
 """
 
 from __future__ import annotations

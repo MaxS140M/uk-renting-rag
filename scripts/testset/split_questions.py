@@ -6,8 +6,8 @@ already used for tuning into the held-out set, so the script refuses to change a
 held-out set unless --force is given.
 
 Usage:
-    python scripts/split_questions.py --dry-run     # show what would be held out
-    python scripts/split_questions.py               # write the split
+    python scripts/testset/split_questions.py --dry-run     # show what would be held out
+    python scripts/testset/split_questions.py               # write the split
 """
 
 from __future__ import annotations

@@ -5,8 +5,8 @@ passages, select the exact quote, and write the reference answer. The item is va
 before it is saved, and gets the next free id automatically.
 
 Usage:
-    python scripts/add_question.py
-    python scripts/add_question.py --from-draft draft-003   # review an LLM draft
+    python scripts/testset/add_question.py
+    python scripts/testset/add_question.py --from-draft draft-003   # review an LLM draft
 """
 
 from __future__ import annotations

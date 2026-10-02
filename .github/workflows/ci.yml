@@ -41,7 +41,7 @@ jobs:
 
       # Every evidence quote in the test set must still exist in the frozen corpus snapshot.
       - name: Validate evaluation test set
-        run: python scripts/validate_questions.py
+        run: python scripts/testset/validate_questions.py
 
   docker:
     # Builds the production image (no push) and checks the container starts with its

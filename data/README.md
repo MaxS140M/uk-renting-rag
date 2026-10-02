@@ -4,7 +4,7 @@
 the Renters' Rights Act 2025, evictions and possession notices, deposits, rent increases and
 disputes, repairs and safety, HMOs, social housing, and help with housing costs.
 
-The full page list is in [`scripts/sources.txt`](../scripts/sources.txt) and a per-document
+The full page list is in [`scripts/data/sources.txt`](../scripts/data/sources.txt) and a per-document
 topic inventory is in [`eval/corpus_overview.md`](../eval/corpus_overview.md).
 
 ## Source and licence
@@ -21,9 +21,9 @@ which allows reuse provided the source is attributed:
 
 | Path | Committed? | Contents |
 | --- | --- | --- |
-| `raw/` | **Yes** (frozen snapshot) | One JSON file per page, written by `scripts/download_docs.py` |
-| `chunks.jsonl` | No | One chunk per line, written by `scripts/chunk_corpus.py` |
-| `index/` | No | FAISS and BM25 indexes, written by `scripts/build_index.py` |
+| `raw/` | **Yes** (frozen snapshot) | One JSON file per page, written by `scripts/data/download_docs.py` |
+| `chunks.jsonl` | No | One chunk per line, written by `scripts/data/chunk_corpus.py` |
+| `index/` | No | FAISS and BM25 indexes, written by `scripts/data/build_index.py` |
 | `sample/` | Yes | Three small documents used by the unit tests |
 
 ## Frozen snapshot
@@ -35,7 +35,7 @@ text. Committing the snapshot means anyone who clones the repo evaluates against
 documents, and CI can check that every quote still exists.
 
 Updating the corpus is therefore a deliberate change, not a side effect: re-download with
-`--refresh`, review the git diff, run `python scripts/validate_questions.py` to find quotes
+`--refresh`, review the git diff, run `python scripts/testset/validate_questions.py` to find quotes
 that no longer match, fix them, and commit everything together.
 
 Each document is a JSON object:
@@ -58,10 +58,10 @@ Renters' Rights Act changes from 1 May 2026. Treat `date_retrieved` as the relia
 ## Rebuilding the dataset
 
 ```bash
-python scripts/download_docs.py        # fetch any pages missing from data/raw/
-python scripts/download_docs.py --refresh   # re-download everything (changes the snapshot)
-python scripts/chunk_corpus.py         # write data/chunks.jsonl
-python scripts/summarise_corpus.py     # regenerate eval/corpus_overview.md
+python scripts/data/download_docs.py        # fetch any pages missing from data/raw/
+python scripts/data/download_docs.py --refresh   # re-download everything (changes the snapshot)
+python scripts/data/chunk_corpus.py         # write data/chunks.jsonl
+python scripts/data/summarise_corpus.py     # regenerate eval/corpus_overview.md
 ```
 
 The downloader sends a descriptive User-Agent, waits one second between requests, retries

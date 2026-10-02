@@ -10,7 +10,7 @@ import pytest
 from rag.evaluation.schema import EvalItem, append_item, load_items
 
 ROOT = Path(__file__).resolve().parent.parent
-SCRIPT = ROOT / "scripts" / "review_drafts.py"
+SCRIPT = ROOT / "scripts" / "testset" / "review_drafts.py"
 SAMPLE = ROOT / "data" / "sample"
 QUOTE = (
     "Your landlord or letting agent must put your deposit in the scheme within 30 days of "

@@ -88,7 +88,7 @@ pip install -r requirements-dev.txt    # pinned runtime dependencies plus pytest
 pip install -e . --no-deps
 cp .env.example .env                   # then add your ANTHROPIC_API_KEY
 
-python scripts/prepare_deployment.py   # download the models and build the index (a few minutes)
+python scripts/deploy/prepare_deployment.py   # download the models and build the index (a few minutes)
 uvicorn app.main:app --port 7860       # demo at http://localhost:7860, API docs at /docs
 ```
 
@@ -188,7 +188,7 @@ split:
 - Reduce false refusals, for example by letting the model answer the parts it can support
   and by retrieving more passages for multi-part questions.
 - Allow several gold passages per question, so recall is not understated.
-- Have a person review the test set (the tooling exists: `scripts/review_drafts.py`).
+- Have a person review the test set (the tooling exists: `scripts/testset/review_drafts.py`).
 - Re-run the evaluation with the deployed prompt (v2).
 - Add a demo GIF, and host the demo publicly ([DEPLOY.md](DEPLOY.md)).
 

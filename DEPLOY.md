@@ -54,7 +54,7 @@ visible in the Space's files, logs or settings page once saved.
 From the project folder, with the virtual environment active:
 
 ```bash
-python scripts/prepare_space.py          # assembles build/space/ with the Space README header
+python scripts/deploy/prepare_space.py          # assembles build/space/ with the Space README header
 ```
 
 Then push it (the first time, clone the empty Space repo next to the project):
@@ -92,7 +92,7 @@ push to GitHub.
 
 ### Updating the demo
 
-Make and commit your changes in this repository, then run `python scripts/prepare_space.py`,
+Make and commit your changes in this repository, then run `python scripts/deploy/prepare_space.py`,
 copy `build/space/` into `hf-space/` again, commit and push. The Space rebuilds itself.
 
 ## Option B: any Docker host

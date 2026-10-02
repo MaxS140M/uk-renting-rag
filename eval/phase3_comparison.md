@@ -1,6 +1,6 @@
 # Retrieval comparison
 
-Generated 2026-10-01 17:27 UTC by `scripts/compare_retrieval.py` (no LLM calls). Top 5 chunks per setup; candidate pool 20, RRF k = 60, reranker `cross-encoder/ms-marco-MiniLM-L-6-v2` on cpu. **(new)** marks a chunk that is not in the dense top 5. Scores are on different scales per setup (cosine, BM25, RRF, cross-encoder logit) and are only comparable within a column. Timings are the median of 3 warm runs on a laptop CPU, in milliseconds.
+Generated 2026-10-01 17:27 UTC by `scripts/evaluation/compare_retrieval.py` (no LLM calls). Top 5 chunks per setup; candidate pool 20, RRF k = 60, reranker `cross-encoder/ms-marco-MiniLM-L-6-v2` on cpu. **(new)** marks a chunk that is not in the dense top 5. Scores are on different scales per setup (cosine, BM25, RRF, cross-encoder logit) and are only comparable within a column. Timings are the median of 3 warm runs on a laptop CPU, in milliseconds.
 
 ### How long does my landlord have to protect my deposit?
 

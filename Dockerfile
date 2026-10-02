@@ -34,14 +34,14 @@ RUN TORCH_VERSION=$(grep -E '^torch==' requirements.txt | cut -d= -f3) \
 # 2. Only what the app needs: no tests, notebooks, evaluation results or secrets.
 COPY --chown=user src ./src
 COPY --chown=user app ./app
-COPY --chown=user scripts/prepare_deployment.py ./scripts/
+COPY --chown=user scripts/deploy/prepare_deployment.py ./scripts/deploy/
 COPY --chown=user eval/configs.yaml ./eval/
 COPY --chown=user data/raw ./data/raw
 
 # 3. Bake in the models and the index for the deployed configuration.
 ARG RAG_CONFIG=hybrid_rerank_bge
 ENV RAG_CONFIG=${RAG_CONFIG}
-RUN python scripts/prepare_deployment.py
+RUN python scripts/deploy/prepare_deployment.py
 
 # Everything is local now: fail fast rather than silently downloading at run time.
 ENV HF_HUB_OFFLINE=1 \

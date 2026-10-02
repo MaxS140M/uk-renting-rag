@@ -7,12 +7,12 @@ Two modes:
   --doc ID     Draft a few questions for one document (shows the model the document).
 
 Drafts go to eval/drafts.jsonl (never to eval/questions.jsonl) with author "llm_draft".
-Review them with:  python scripts/review_drafts.py
+Review them with:  python scripts/testset/review_drafts.py
 
 Usage:
-    python scripts/draft_questions.py --test-set --estimate-only
-    python scripts/draft_questions.py --test-set
-    python scripts/draft_questions.py --doc tenancy-deposit-protection --n 5
+    python scripts/testset/draft_questions.py --test-set --estimate-only
+    python scripts/testset/draft_questions.py --test-set
+    python scripts/testset/draft_questions.py --doc tenancy-deposit-protection --n 5
 """
 
 from __future__ import annotations
@@ -96,7 +96,9 @@ def run_test_set(args, docs, existing) -> int:
         print(f"Dropped duplicate: {line}")
     for line in result.rejected:
         print(f"Rejected: {line}")
-    print("Next: python scripts/validate_questions.py --questions eval/drafts.jsonl --drafts")
+    print(
+        "Next: python scripts/testset/validate_questions.py --questions eval/drafts.jsonl --drafts"
+    )
     return 0
 
 

@@ -8,7 +8,7 @@ from rag.evaluation.utils import load_corpus
 
 ROOT = Path(__file__).resolve().parent.parent
 spec = importlib.util.spec_from_file_location(
-    "question_coverage", ROOT / "scripts" / "question_coverage.py"
+    "question_coverage", ROOT / "scripts" / "testset" / "question_coverage.py"
 )
 coverage = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(coverage)
