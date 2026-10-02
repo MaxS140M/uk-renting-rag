@@ -7,12 +7,9 @@ guidance, cites its sources, and says so when the guidance does not cover a ques
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
 
-**Try it locally:** the demo page and API run on your own machine with one command (see
-[Quick start](#quick-start)). It is not hosted publicly; [DEPLOY.md](DEPLOY.md) explains how
-it could be.
 
-<!-- Demo GIF: record one, save it as docs/demo.gif, and replace this comment with
-![Asking the assistant about deposits](docs/demo.gif) -->
+# Demo
+![Asking the assistant about deposits](RAG_Demo.gif) 
 
 ## Results
 
