@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 import re
 from datetime import date
 
@@ -26,6 +27,16 @@ _TRAILER_RE = re.compile(
     r"^\s*(sources:|guidance retrieved:|this is general information from gov\.uk)",
     re.IGNORECASE,
 )
+
+
+def cold_start_note() -> str:
+    """Hugging Face Spaces set SPACE_ID; free Spaces sleep when idle, so warn visitors there."""
+    if not os.environ.get("SPACE_ID"):
+        return ""
+    return (
+        "⏳ This runs on free hosting. If nobody has used it for a while, the first answer "
+        "can take up to a minute while it wakes up.\n\n"
+    )
 
 
 def readable_date(iso: str | None) -> str:
@@ -112,9 +123,8 @@ def build_ui(service: DemoService) -> gr.Blocks:
             f"**Demo project. Not legal advice. Covers GOV.UK guidance for England as of "
             f"{guidance_date}.** Renting law changed on 1 May 2026; check GOV.UK, Citizens "
             "Advice or Shelter before acting.\n\n"
-            "⏳ This runs on free hosting. If nobody has used it for a while, the first answer "
-            "can take up to a minute while it wakes up.\n\n"
-            "🔒 Your question is sent to Anthropic's API to write the answer. This app does "
+            + cold_start_note()
+            + "🔒 Your question is sent to Anthropic's API to write the answer. This app does "
             "not store it: only anonymous metrics (timings, errors, whether it refused) are "
             "logged. Please don't include names, addresses or other personal details."
         )

@@ -113,3 +113,12 @@ def test_app_builds_without_loading_models():
     )
     assert client.get("/health").json()["index_loaded"] is False
     assert {"/ask", "/health"} <= set(client.get("/openapi.json").json()["paths"])
+
+
+def test_cold_start_note_only_on_hugging_face(monkeypatch):
+    from app.ui import cold_start_note
+
+    monkeypatch.delenv("SPACE_ID", raising=False)
+    assert cold_start_note() == ""
+    monkeypatch.setenv("SPACE_ID", "someone/uk-renting-rag")
+    assert "wakes up" in cold_start_note()
