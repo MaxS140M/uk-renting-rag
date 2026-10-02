@@ -296,7 +296,11 @@ def build_markdown(
         lines += [
             f"Run on {run.get('run_at', '?')}"
             + (" (forced repeat: " + run["reason"] + ")" if run.get("forced") else "")
-            + ". These 20 questions were never used for any decision.",
+            + ". These questions were never used for any decision. With only "
+            + f"{int(num(next(iter(heldout.values())), 'n_answerable') or 0)} answerable "
+            "questions, one question moves Recall@5 or correctness by several points, so the "
+            "held-out figures confirm the dev results' order of magnitude rather than refine "
+            "them.",
             "",
             *main_table(heldout, [e for e in experiments if e.name in heldout]),
         ]
