@@ -9,6 +9,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
+GITHUB_URL = "https://github.com/MaxS140M/uk-renting-rag"
 DATA_DIR = PROJECT_ROOT / "data"
 RAW_DIR = DATA_DIR / "raw"
 CHUNKS_FILE = DATA_DIR / "chunks.jsonl"
@@ -25,8 +26,10 @@ EMBEDDING_MAX_SEQ_LENGTH = 512
 CHUNK_MAX_TOKENS = 400
 CHUNK_OVERLAP_TOKENS = 50
 
-# Retrieval. The defaults reproduce the Phase 2 baseline (dense only, no reranker); which
-# setup becomes the default is decided by the Phase 5 evaluation, not by hand.
+# Retrieval. These library defaults are the Phase 2 baseline (dense only, no reranker),
+# kept so earlier results stay reproducible. The deployed configuration, chosen by the
+# Phase 5 evaluation, is the named experiment `hybrid_rerank_bge` in eval/configs.yaml:
+# the demo uses it, and scripts accept --config hybrid_rerank_bge.
 RETRIEVAL_MODES = ("dense", "bm25", "hybrid")
 RETRIEVAL_MODE = "dense"
 USE_RERANKER = False
