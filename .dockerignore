@@ -1,0 +1,33 @@
+# Keep the build context small and never send secrets or private files to Docker.
+# (The Dockerfile also copies only the folders it needs; this is a second safeguard.)
+
+# Secrets and private notes
+.env
+.env.*
+!.env.example
+PROJECT_NOTES.md
+
+# Version control, environments and caches
+.git
+.github
+.venv
+**/__pycache__
+**/*.py[cod]
+.pytest_cache
+.ruff_cache
+*.egg-info
+build
+dist
+
+# Derived data (rebuilt inside the image) and evaluation artefacts
+data/index*
+data/chunks*.jsonl
+data/llm_cache
+data/sample
+eval/results
+eval/drafts.jsonl
+
+# Not needed at run time
+tests
+notebooks
+docs
