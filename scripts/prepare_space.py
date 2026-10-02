@@ -13,10 +13,9 @@ from __future__ import annotations
 import shutil
 import sys
 
-from rag.config import PROJECT_ROOT
+from rag.config import GITHUB_URL, PROJECT_ROOT
 
 OUT = PROJECT_ROOT / "build" / "space"
-GITHUB_URL = "https://github.com/MaxS140M/uk-renting-rag"
 INCLUDE = [
     "Dockerfile",
     ".dockerignore",

@@ -137,3 +137,24 @@ class FakeAnthropicClient:
 @pytest.fixture
 def fake_client_factory():
     return FakeAnthropicClient
+
+
+@pytest.fixture
+def make_demo_service(loaded_index, embedder):
+    """Build a DemoService on the tiny fake index with a given (fake) LLM client."""
+    from app.service import DemoService, Settings
+    from rag.config import RAGConfig
+    from rag.generate import Generator
+    from rag.pipeline import RAGPipeline
+    from rag.retrieval import DenseRetriever
+
+    def build(client, **settings) -> DemoService:
+        config = RAGConfig(final_k=3, candidate_k=3)
+        pipeline = RAGPipeline(
+            config,
+            retriever=DenseRetriever(loaded_index, embedder),
+            generator=Generator(config, client=client),
+        )
+        return DemoService(Settings(config_name="test_config", **settings), pipeline=pipeline)
+
+    return build

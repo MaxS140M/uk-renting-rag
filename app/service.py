@@ -19,14 +19,13 @@ from datetime import UTC, date, datetime
 
 import anthropic
 
-from rag.config import PROJECT_ROOT
+from rag.config import GITHUB_URL, PROJECT_ROOT  # noqa: F401 (re-exported for the UI)
 from rag.experiment import Experiment, load_experiments, load_index_chunks
 from rag.generate import Generator, MissingAPIKeyError, create_client
 from rag.pipeline import AnswerResult, RAGPipeline
 
 log = logging.getLogger("uk_renting_rag")
 MAX_QUESTION_CHARS = 500
-GITHUB_URL = "https://github.com/MaxS140M/uk-renting-rag"
 
 
 @dataclass(frozen=True)

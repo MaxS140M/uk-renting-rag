@@ -11,29 +11,15 @@ from fastapi.testclient import TestClient
 
 from app.api import create_app
 from app.service import DemoService, Settings
-from rag.config import RAGConfig
-from rag.generate import Generator
-from rag.pipeline import RAGPipeline
-from rag.retrieval import DenseRetriever
 
 QUESTION = "How long does my landlord have to protect my deposit?"
 
 
-def make_service(loaded_index, embedder, client, **settings) -> DemoService:
-    config = RAGConfig(final_k=3, candidate_k=3)
-    pipeline = RAGPipeline(
-        config,
-        retriever=DenseRetriever(loaded_index, embedder),
-        generator=Generator(config, client=client),
-    )
-    return DemoService(Settings(config_name="test_config", **settings), pipeline=pipeline)
-
-
 @pytest.fixture
-def api(loaded_index, embedder, fake_client_factory):
+def api(make_demo_service, fake_client_factory):
     def build(reply="Within 30 days [1].\n\nThis is general information.", client=None, **settings):
         client = client or fake_client_factory(reply)
-        service = make_service(loaded_index, embedder, client, **settings)
+        service = make_demo_service(client, **settings)
         return TestClient(create_app(service, load=False), raise_server_exceptions=False)
 
     return build
@@ -138,8 +124,8 @@ def test_llm_failures_return_friendly_errors_without_internals(api, error, statu
     assert "Traceback" not in response.text and "secret internal detail" not in response.text
 
 
-def test_unconfigured_llm_is_reported_not_crashed(loaded_index, embedder, fake_client_factory):
-    service = make_service(loaded_index, embedder, fake_client_factory())
+def test_unconfigured_llm_is_reported_not_crashed(make_demo_service, fake_client_factory):
+    service = make_demo_service(fake_client_factory())
     service.llm_configured = False
     response = TestClient(create_app(service, load=False)).post("/ask", json={"question": QUESTION})
     assert response.status_code == 503 and "isn't configured" in response.json()["error"]

@@ -7,7 +7,8 @@ from datetime import date
 
 import gradio as gr
 
-from app.service import GITHUB_URL, MAX_QUESTION_CHARS, DemoAnswer, DemoError, DemoService
+from app.service import MAX_QUESTION_CHARS, DemoAnswer, DemoError, DemoService
+from rag.config import GITHUB_URL
 
 RESULTS_URL = f"{GITHUB_URL}/blob/main/eval/RESULTS.md"
 EXAMPLES = [

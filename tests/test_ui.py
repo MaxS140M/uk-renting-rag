@@ -7,7 +7,6 @@ from fastapi.testclient import TestClient
 from app.main import build_app
 from app.service import DemoAnswer, DemoError, DemoService, Settings
 from app.ui import answer_body, make_handler, readable_date, render_answer, render_details
-from tests.test_api import make_service
 
 MODEL_ANSWER = """Your landlord must protect your deposit within 30 days [1].
 
@@ -97,8 +96,8 @@ def test_handler_shows_friendly_errors():
     assert answer == "⚠️ Please wait 30 seconds." and details == ""
 
 
-def test_demo_page_and_api_are_served_by_one_app(loaded_index, embedder, fake_client_factory):
-    service = make_service(loaded_index, embedder, fake_client_factory("Answer [1]."))
+def test_demo_page_and_api_are_served_by_one_app(make_demo_service, fake_client_factory):
+    service = make_demo_service(fake_client_factory("Answer [1]."))
     service.guidance_date = "2026-10-01"
     client = TestClient(build_app(service, load=False))
 
