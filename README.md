@@ -4,8 +4,9 @@ A retrieval-augmented generation (RAG) assistant that answers questions about re
 tenancy in England using official [GOV.UK](https://www.gov.uk) guidance, with citations back
 to the source pages.
 
-> **Status:** Phase 5: evaluated on 110 dev questions across 7 retrieval setups, with the
-> judge checked against human labels. The one-off held-out run is next, then the web API and demo.
+> **Status:** Phase 5 complete: 7 retrieval setups evaluated on 110 dev questions, the judge
+> checked against human labels, and the final setup run once on 20 held-out questions. Next: the
+> web API and demo.
 
 ## Project description
 
@@ -24,13 +25,15 @@ Coming soon.
 
 ## Results
 
-On 110 development questions (99 answerable, 11 unanswerable), full details in
+On 110 development questions (99 answerable, 11 unanswerable) and the 20 held-out
+questions, run once for the final configuration; full details in
 [`eval/RESULTS.md`](eval/RESULTS.md):
 
 | Configuration | Recall@5 | MRR | Faithfulness | Correctness | Refusal accuracy | Median latency |
 |---|---:|---:|---:|---:|---:|---:|
 | Dense retrieval (baseline) | 67.7% | 0.463 | 88.4% | 61.6% | 100% | 3.0 s |
 | Hybrid + reranker + BGE embeddings | 71.7% | 0.494 | 87.2% | 65.7% | 100% | 4.0 s |
+| Same, **held-out** (20 questions, run once) | 83.3% | 0.565 | 93.8% | 66.7% | 100% | 4.0 s |
 
 - **No setup beats the baseline by more than chance.** The best configuration gains about 4
   points on Recall@5 and correctness, but both 95% intervals include zero. BM25, hybrid
@@ -230,4 +233,4 @@ Earlier qualitative checks: [`eval/baseline_smoke_test.md`](eval/baseline_smoke_
 - [x] Generate a 130-question test set (LLM-generated, automatically verified)
 - [x] Run the evaluation and ablations on the dev split
 - [x] Check the LLM judge against human labels
-- [ ] Run the held-out split once for the final configuration
+- [x] Run the held-out split once for the final configuration

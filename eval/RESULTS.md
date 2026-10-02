@@ -46,4 +46,8 @@ Each experiment changes one setting from the one it is compared with, so the dif
 
 ## Held-out result (run once)
 
-Not run yet. The held-out split is run once, for the final configuration only, after all choices are made on the dev split.
+Run on 2026-10-02T11:32:41+00:00. These questions were never used for any decision. With only 18 answerable questions, one question moves Recall@5 or correctness by several points, so the held-out figures confirm the dev results' order of magnitude rather than refine them.
+
+| Configuration | Recall@5 | MRR | Faithfulness | Correctness | Refusal accuracy | Median latency |
+|---|---:|---:|---:|---:|---:|---:|
+| `hybrid_rerank_bge`: Hybrid + reranker with BAAI/bge-base-en-v1.5 embeddings (768 dims) | 83.3% | 0.565 | 93.8% | 66.7% | 100.0% | 3.97 s |
