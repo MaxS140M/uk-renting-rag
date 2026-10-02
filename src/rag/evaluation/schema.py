@@ -1,4 +1,4 @@
-"""Schema for evaluation test items, stored one per line in eval/questions.jsonl.
+"""Schema for evaluation test items, stored one per line in eval/testset/questions.jsonl.
 
 Gold evidence is stored as (doc_id, exact quote), never as chunk_ids: chunk_ids change
 whenever the chunking settings change (an ablation in the evaluation), but a quote from the
@@ -18,7 +18,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_valida
 QuestionType = Literal["factual", "multi_passage", "informal", "unanswerable"]
 Split = Literal["dev", "heldout"]
 # "max": written by me. "llm_draft_reviewed": started as an LLM draft, then reviewed and
-# edited by me. "llm_draft": unreviewed draft, only allowed in eval/drafts.jsonl.
+# edited by me. "llm_draft": unreviewed draft, only allowed in eval/testset/drafts.jsonl.
 # "example": format examples, excluded from all metrics.
 # "llm_generated": LLM-generated and automatically checked (quotes verified word for word),
 # but NOT individually reviewed by a person.

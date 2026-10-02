@@ -185,7 +185,7 @@ def main() -> int:
         )
         return 1
     records = [json.loads(line) for line in path.read_text("utf-8").splitlines() if line]
-    items = {i.id: i for i in load_items(EVAL_DIR / "questions.jsonl")}
+    items = {i.id: i for i in load_items(EVAL_DIR / "testset" / "questions.jsonl")}
     if not any(r.get("generation") for r in records):
         print(f"No generated answers in {path}.")
         return 1

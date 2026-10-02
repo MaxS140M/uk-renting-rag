@@ -150,7 +150,7 @@ Details: [eval/README.md](eval/README.md).
   everything correct, so they could not measure agreement (kappa 0.00). Reviewing each of the
   16 disagreements, the judge was right in 20 of 25 disputed calls; agreement after that review
   is 85% for faithfulness (kappa 0.71) and 96% for correctness (kappa 0.93). That review was
-  not blind, so these figures are optimistic ([details](eval/judge_agreement.md)).
+  not blind, so these figures are optimistic ([details](eval/judge/agreement.md)).
 - **Held-out split run once**, for the final configuration only; the script refuses a second
   run without a logged reason.
 

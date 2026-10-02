@@ -5,7 +5,7 @@ the Renters' Rights Act 2025, evictions and possession notices, deposits, rent i
 disputes, repairs and safety, HMOs, social housing, and help with housing costs.
 
 The full page list is in [`scripts/data/sources.txt`](../scripts/data/sources.txt) and a per-document
-topic inventory is in [`eval/corpus_overview.md`](../eval/corpus_overview.md).
+topic inventory is in [`eval/testset/corpus_overview.md`](../eval/testset/corpus_overview.md).
 
 ## Source and licence
 
@@ -29,7 +29,7 @@ which allows reuse provided the source is attributed:
 ## Frozen snapshot
 
 `raw/` is committed as a **frozen snapshot** of the corpus, retrieved on 2026-10-01. The
-evaluation set (`eval/questions.jsonl`) cites exact quotes from these documents, and GOV.UK
+evaluation set (`eval/testset/questions.jsonl`) cites exact quotes from these documents, and GOV.UK
 edits its pages over time, so the test set is only valid against a fixed version of the
 text. Committing the snapshot means anyone who clones the repo evaluates against the same
 documents, and CI can check that every quote still exists.
@@ -61,7 +61,7 @@ Renters' Rights Act changes from 1 May 2026. Treat `date_retrieved` as the relia
 python scripts/data/download_docs.py        # fetch any pages missing from data/raw/
 python scripts/data/download_docs.py --refresh   # re-download everything (changes the snapshot)
 python scripts/data/chunk_corpus.py         # write data/chunks.jsonl
-python scripts/data/summarise_corpus.py     # regenerate eval/corpus_overview.md
+python scripts/data/summarise_corpus.py     # regenerate eval/testset/corpus_overview.md
 ```
 
 The downloader sends a descriptive User-Agent, waits one second between requests, retries

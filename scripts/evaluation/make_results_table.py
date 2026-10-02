@@ -212,7 +212,7 @@ def judge_section(stats: dict | None) -> list[str]:
     )
     return [
         f"Judge checked against my own labels on {stats['n']} randomly sampled answers "
-        f"([details](judge_agreement.md)): faithfulness agreement "
+        f"([details](judge/agreement.md)): faithfulness agreement "
         f"{stats['faithfulness_agreement']:.0%} (kappa {stats['faithfulness_kappa']:.2f}), "
         f"correctness agreement {stats['correctness_agreement']:.0%} "
         f"(kappa {stats['correctness_kappa']:.2f}).{caveat}",
@@ -326,7 +326,7 @@ def main() -> int:
     with SUMMARY.open(encoding="utf-8", newline="") as f:
         rows = list(csv.DictReader(f))
     experiments = load_experiments(EVAL_DIR / "configs.yaml")
-    stats_path = EVAL_DIR / "judge_agreement.json"
+    stats_path = EVAL_DIR / "judge" / "agreement.json"
     judge_stats = json.loads(stats_path.read_text()) if stats_path.exists() else None
     log = EVAL_DIR / "results" / "heldout_runs.jsonl"
     heldout_runs = (

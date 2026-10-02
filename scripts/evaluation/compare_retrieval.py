@@ -5,7 +5,8 @@ timings. A qualitative check, not an evaluation: formal metrics come from the ev
 
 Usage:
     python scripts/evaluation/compare_retrieval.py "How long to protect my deposit?"
-    python scripts/evaluation/compare_retrieval.py --smoke --out eval/phase3_comparison.md
+    python scripts/evaluation/compare_retrieval.py --smoke \
+        --out eval/early_checks/phase3_comparison.md
 """
 
 from __future__ import annotations
@@ -22,7 +23,7 @@ from rag.config import PROJECT_ROOT, RAGConfig
 from rag.factory import build_retriever
 from rag.retrieval import RetrievalResult, Retriever
 
-SMOKE_QUESTIONS = PROJECT_ROOT / "eval" / "smoke_questions.json"
+SMOKE_QUESTIONS = PROJECT_ROOT / "eval" / "early_checks" / "smoke_questions.json"
 SETUPS = [("dense", False), ("bm25", False), ("hybrid", False), ("hybrid", True)]
 
 
@@ -81,7 +82,9 @@ def compare(question: str, retrievers: dict[str, Retriever], k: int, repeats: in
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("questions", nargs="*", help="questions to compare")
-    parser.add_argument("--smoke", action="store_true", help="use eval/smoke_questions.json")
+    parser.add_argument(
+        "--smoke", action="store_true", help="use eval/early_checks/smoke_questions.json"
+    )
     parser.add_argument("--k", type=int, default=5)
     parser.add_argument("--repeats", type=int, default=3, help="runs per setup for timing")
     parser.add_argument("--out", type=Path, help="also save the output as Markdown")

@@ -25,9 +25,8 @@ data/chunks*.jsonl
 data/llm_cache
 data/sample
 eval/results
-eval/drafts.jsonl
+eval/testset/drafts.jsonl
 
 # Not needed at run time
 tests
-notebooks
 docs

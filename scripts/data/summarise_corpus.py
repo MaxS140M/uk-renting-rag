@@ -1,4 +1,4 @@
-"""Print a topic inventory of the corpus and save it to eval/corpus_overview.md.
+"""Print a topic inventory of the corpus and save it to eval/testset/corpus_overview.md.
 
 For each document: title, word count, last-updated date and its main headings. Used to plan
 evaluation questions by hand.
@@ -15,7 +15,7 @@ import sys
 
 from rag.config import PROJECT_ROOT, RAW_DIR
 
-OUT_FILE = PROJECT_ROOT / "eval" / "corpus_overview.md"
+OUT_FILE = PROJECT_ROOT / "eval" / "testset" / "corpus_overview.md"
 MAX_HEADINGS = 15  # per document, to keep the overview readable
 
 

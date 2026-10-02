@@ -4,7 +4,8 @@ A quick manual check, not an evaluation: rerun it after each phase and compare t
 
 Usage:
     python scripts/evaluation/smoke_test.py
-    python scripts/evaluation/smoke_test.py --mode hybrid --rerank   # -> eval/smoke_test_*.md
+    python scripts/evaluation/smoke_test.py --mode hybrid --rerank
+        # -> eval/early_checks/smoke_test_hybrid+rerank.md
 """
 
 from __future__ import annotations
@@ -23,7 +24,7 @@ from rag.generate import MissingAPIKeyError
 from rag.pipeline import AnswerResult, RAGPipeline
 from rag.prompts import PROMPT_VERSION
 
-QUESTIONS_FILE = PROJECT_ROOT / "eval" / "smoke_questions.json"
+QUESTIONS_FILE = PROJECT_ROOT / "eval" / "early_checks" / "smoke_questions.json"
 
 
 def load_questions() -> list[tuple[str, str]]:
@@ -74,7 +75,7 @@ def main() -> int:
     config = config_from_args(args)
     if args.out is None:
         name = "baseline_smoke_test" if config == RAGConfig() else f"smoke_test_{config.label}"
-        args.out = PROJECT_ROOT / "eval" / f"{name}.md"
+        args.out = PROJECT_ROOT / "eval" / "early_checks" / f"{name}.md"
     pipeline = RAGPipeline(config)
     questions = load_questions()
     sections = []

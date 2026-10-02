@@ -277,7 +277,7 @@ def test_requests_match_the_real_sdk_signature(docs):
 
 
 def test_topic_list_keeps_titles_and_headings_only():
-    overview = (ROOT / "eval" / "corpus_overview.md").read_text(encoding="utf-8")
+    overview = (ROOT / "eval" / "testset" / "corpus_overview.md").read_text(encoding="utf-8")
     topics = topic_list(overview)
     assert "Topic: Tenancy deposit protection" in topics
     assert "https://" not in topics and "| " not in topics

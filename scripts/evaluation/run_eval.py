@@ -97,7 +97,7 @@ def main() -> int:
     parser.add_argument("--judge-effort", default=JUDGE_EFFORT)
     parser.add_argument("--yes", action="store_true", help="skip the cost confirmation")
     parser.add_argument("--estimate-only", action="store_true", help="stop after the estimate")
-    parser.add_argument("--questions", type=Path, default=EVAL_DIR / "questions.jsonl")
+    parser.add_argument("--questions", type=Path, default=EVAL_DIR / "testset" / "questions.jsonl")
     parser.add_argument("--experiments", type=Path, default=EVAL_DIR / "configs.yaml")
     args = parser.parse_args()
     sys.stdout.reconfigure(encoding="utf-8")

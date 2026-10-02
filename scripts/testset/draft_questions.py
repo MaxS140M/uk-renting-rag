@@ -6,7 +6,8 @@ Two modes:
                reference answers found in the full corpus by a separate call.
   --doc ID     Draft a few questions for one document (shows the model the document).
 
-Drafts go to eval/drafts.jsonl (never to eval/questions.jsonl) with author "llm_draft".
+Drafts go to eval/testset/drafts.jsonl (never to eval/testset/questions.jsonl) with author
+"llm_draft".
 Review them with:  python scripts/testset/review_drafts.py
 
 Usage:
@@ -44,8 +45,8 @@ from rag.evaluation.utils import load_corpus
 from rag.generate import MissingAPIKeyError, create_client
 from rag.llm_cache import LLMCache
 
-DRAFTS_FILE = PROJECT_ROOT / "eval" / "drafts.jsonl"
-OVERVIEW_FILE = PROJECT_ROOT / "eval" / "corpus_overview.md"
+DRAFTS_FILE = PROJECT_ROOT / "eval" / "testset" / "drafts.jsonl"
+OVERVIEW_FILE = PROJECT_ROOT / "eval" / "testset" / "corpus_overview.md"
 
 
 def run_test_set(args, docs, existing) -> int:
@@ -97,14 +98,15 @@ def run_test_set(args, docs, existing) -> int:
     for line in result.rejected:
         print(f"Rejected: {line}")
     print(
-        "Next: python scripts/testset/validate_questions.py --questions eval/drafts.jsonl --drafts"
+        "Next: python scripts/testset/validate_questions.py "
+        "--questions eval/testset/drafts.jsonl --drafts"
     )
     return 0
 
 
 def run_single_doc(args, docs, existing) -> int:
     if args.doc not in docs:
-        print(f"Unknown doc_id '{args.doc}'. See eval/corpus_overview.md.", file=sys.stderr)
+        print(f"Unknown doc_id '{args.doc}'. See eval/testset/corpus_overview.md.", file=sys.stderr)
         return 1
     result = draft_questions(docs[args.doc], create_client(), args.model, args.n, existing)
     for draft in result.drafts:

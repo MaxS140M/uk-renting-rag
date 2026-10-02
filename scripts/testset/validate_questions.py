@@ -1,4 +1,4 @@
-"""Validate eval/questions.jsonl against the schema and the frozen corpus.
+"""Validate eval/testset/questions.jsonl against the schema and the frozen corpus.
 
 Checks every item's format, that every evidence quote appears exactly in its document and
 maps to a chunk, and that no two questions are duplicates. Exits with code 1 on errors, so
@@ -24,7 +24,7 @@ from rag.config import PROJECT_ROOT, RAW_DIR, RAGConfig
 from rag.evaluation.schema import parse_items
 from rag.evaluation.utils import corpus_fingerprint, load_corpus, type_counts, validate_items
 
-QUESTIONS_FILE = PROJECT_ROOT / "eval" / "questions.jsonl"
+QUESTIONS_FILE = PROJECT_ROOT / "eval" / "testset" / "questions.jsonl"
 
 
 def show_unanswerable(items, args) -> None:
@@ -49,7 +49,9 @@ def main() -> int:
     parser.add_argument("--corpus", type=Path, default=RAW_DIR)
     parser.add_argument("--strict", action="store_true", help="treat warnings as errors")
     parser.add_argument(
-        "--drafts", action="store_true", help="the file holds unreviewed drafts (eval/drafts.jsonl)"
+        "--drafts",
+        action="store_true",
+        help="the file holds unreviewed drafts (eval/testset/drafts.jsonl)",
     )
     parser.add_argument(
         "--skip-chunk-check", action="store_true", help="skip mapping quotes to chunks (faster)"

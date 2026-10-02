@@ -1,4 +1,4 @@
-"""Interactively write one evaluation question and append it to eval/questions.jsonl.
+"""Interactively write one evaluation question and append it to eval/testset/questions.jsonl.
 
 You type the question, pick its type, search the corpus by keyword to find supporting
 passages, select the exact quote, and write the reference answer. The item is validated
@@ -38,8 +38,8 @@ from rag.evaluation.schema import (
 )
 from rag.evaluation.utils import load_corpus, question_similarity
 
-QUESTIONS_FILE = PROJECT_ROOT / "eval" / "questions.jsonl"
-DRAFTS_FILE = PROJECT_ROOT / "eval" / "drafts.jsonl"
+QUESTIONS_FILE = PROJECT_ROOT / "eval" / "testset" / "questions.jsonl"
+DRAFTS_FILE = PROJECT_ROOT / "eval" / "testset" / "drafts.jsonl"
 SIMILARITY_WARNING = 0.85  # same threshold the validator uses for near-duplicates
 
 

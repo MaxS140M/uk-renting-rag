@@ -21,7 +21,7 @@ from rag.config import PROJECT_ROOT
 from rag.evaluation.schema import EvalItem, load_items, write_items
 from rag.evaluation.utils import stratified_sample
 
-QUESTIONS_FILE = PROJECT_ROOT / "eval" / "questions.jsonl"
+QUESTIONS_FILE = PROJECT_ROOT / "eval" / "testset" / "questions.jsonl"
 HELDOUT_SIZE = 20
 EXPECTED_TOTAL = 100
 SEED = 42

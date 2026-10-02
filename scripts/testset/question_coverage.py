@@ -1,6 +1,6 @@
 """Report how the test set covers question types, splits and source documents.
 
-Writes eval/coverage.md: progress against the target mix, and the documents that no
+Writes eval/testset/coverage.md: progress against the target mix, and the documents that no
 question uses yet, to spot gaps. Example items are excluded from every count.
 
 Usage:
@@ -18,8 +18,8 @@ from rag.config import PROJECT_ROOT, RAW_DIR
 from rag.evaluation.schema import QUESTION_TYPES, EvalItem, load_items
 from rag.evaluation.utils import load_corpus
 
-QUESTIONS_FILE = PROJECT_ROOT / "eval" / "questions.jsonl"
-OUT_FILE = PROJECT_ROOT / "eval" / "coverage.md"
+QUESTIONS_FILE = PROJECT_ROOT / "eval" / "testset" / "questions.jsonl"
+OUT_FILE = PROJECT_ROOT / "eval" / "testset" / "coverage.md"
 TARGETS = {"factual": 60, "multi_passage": 20, "informal": 10, "unanswerable": 10}
 HELDOUT_TARGET = 20
 

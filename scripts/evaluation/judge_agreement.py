@@ -26,8 +26,8 @@ from rag.evaluation.metrics import cohens_kappa, percent_agreement
 from rag.experiment import load_experiments, load_index_chunks
 
 EVAL_DIR = PROJECT_ROOT / "eval"
-LABELS_FILE = EVAL_DIR / "judge_labels.jsonl"
-REPORT_FILE = EVAL_DIR / "judge_agreement.md"
+LABELS_FILE = EVAL_DIR / "judge" / "labels.jsonl"
+REPORT_FILE = EVAL_DIR / "judge" / "agreement.md"
 SAMPLE_SIZE = 30
 SEED = 42
 KAPPA_TRUST_THRESHOLD = 0.6  # "substantial" agreement or better (Landis and Koch, 1977)
@@ -223,7 +223,7 @@ def main() -> int:
     parser.add_argument("--config", required=True, help="experiment whose answers to check")
     parser.add_argument("--results", type=Path, help="default: eval/results/<config>.jsonl")
     parser.add_argument("--chunks", type=Path, help="default: the config's index chunks")
-    parser.add_argument("--questions", type=Path, default=EVAL_DIR / "questions.jsonl")
+    parser.add_argument("--questions", type=Path, default=EVAL_DIR / "testset" / "questions.jsonl")
     parser.add_argument("--labels", type=Path, default=LABELS_FILE)
     parser.add_argument("--out", type=Path, default=REPORT_FILE)
     parser.add_argument("--report", action="store_true", help="report only; no labelling")
@@ -260,7 +260,7 @@ def main() -> int:
 
     report, stats = agreement_report(args.config, chosen, read_labels(args.labels))
     stats["method"] = BLIND_METHOD
-    adjudicated = args.labels.with_name("judge_adjudicated_labels.jsonl")
+    adjudicated = args.labels.with_name("adjudicated_labels.jsonl")
     if adjudicated.exists() and stats:
         adj_report, adj_stats = agreement_report(
             args.config,

@@ -20,7 +20,7 @@ dist/
 
 # Derived data (rebuilt from data/raw/ by scripts/, not versioned).
 # data/raw/ IS committed: it is the frozen corpus snapshot the evaluation set is written
-# against, so quotes in eval/questions.jsonl can always be checked.
+# against, so quotes in eval/testset/questions.jsonl can always be checked.
 data/chunks*.jsonl
 data/index*/
 data/llm_cache/
@@ -31,8 +31,8 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Unreviewed LLM question drafts (work in progress; reviewed items go to eval/questions.jsonl)
-eval/drafts.jsonl
+# Unreviewed LLM question drafts (work in progress; reviewed items go to eval/testset/questions.jsonl)
+eval/testset/drafts.jsonl
 
 # Per-question evaluation results (large; regenerate with scripts/evaluation/run_eval.py). The summary
 # table and the held-out run log are committed.

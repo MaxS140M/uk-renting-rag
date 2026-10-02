@@ -1,7 +1,7 @@
 """Generate a draft evaluation set in two separate steps, for human review.
 
 Step 1 writes questions from a tenant persona, seeing only the list of topics the guidance
-covers (eval/corpus_overview.md) and never the passages. Questions written while reading
+covers (eval/testset/corpus_overview.md) and never the passages. Questions written while reading
 a passage tend to reuse its exact wording, which unfairly favours keyword search; real
 tenants describe their problem in their own words.
 
@@ -94,7 +94,7 @@ QUESTION_SCHEMA = {
 
 
 def topic_list(corpus_overview_md: str) -> str:
-    """The document titles and headings from eval/corpus_overview.md, without URLs or counts."""
+    """Document titles and headings from eval/testset/corpus_overview.md (no URLs or counts)."""
     lines = []
     for line in corpus_overview_md.splitlines():
         if line.startswith("## ") and re.match(r"## \d+\. ", line):
