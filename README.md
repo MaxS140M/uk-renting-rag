@@ -7,8 +7,9 @@ guidance, cites its sources, and says so when the guidance does not cover a ques
 [![Licence: MIT](https://img.shields.io/badge/licence-MIT-blue.svg)](LICENSE)
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
 
-**Live demo:** _coming soon_ (see [DEPLOY.md](DEPLOY.md)). The demo runs on free hosting, so
-the first question after a quiet spell can take up to a minute while it wakes up.
+**Try it locally:** the demo page and API run on your own machine with one command (see
+[Quick start](#quick-start)). It is not hosted publicly; [DEPLOY.md](DEPLOY.md) explains how
+it could be.
 
 <!-- Demo GIF: record one, save it as docs/demo.gif, and replace this comment with
 ![Asking the assistant about deposits](docs/demo.gif) -->
@@ -109,8 +110,8 @@ docker build -t uk-renting-rag . && docker run -p 7860:7860 --env-file .env uk-r
 
 The image bakes in the embedding model, reranker and index, runs as a non-root user and
 starts without downloading anything. CI builds it on every push and checks that it loads
-with no network access. Deployment to Hugging Face Spaces is described in
-[DEPLOY.md](DEPLOY.md).
+with no network access. The demo is not hosted publicly, but the image is ready to deploy:
+[DEPLOY.md](DEPLOY.md) covers Hugging Face Spaces and other Docker hosts.
 
 **API:**
 
@@ -182,8 +183,8 @@ split:
   per question (which understates recall), a small held-out set (one question is about 5
   points), and results measured with prompt v1 while the demo uses v2, which adds
   prompt-injection hardening.
-- **Free hosting.** The demo sleeps when idle, so the first request can be slow, and its
-  daily cap resets when it restarts.
+- **Not hosted publicly.** The demo runs locally. Its rate limit and daily cap are kept in
+  memory, so if it were hosted they would reset whenever the server restarted.
 
 ## Next steps
 
@@ -192,7 +193,7 @@ split:
 - Allow several gold passages per question, so recall is not understated.
 - Have a person review the test set (the tooling exists: `scripts/review_drafts.py`).
 - Re-run the evaluation with the deployed prompt (v2).
-- Add a demo GIF and the live link once deployed.
+- Add a demo GIF, and host the demo publicly ([DEPLOY.md](DEPLOY.md)).
 
 ## Licence and attribution
 
