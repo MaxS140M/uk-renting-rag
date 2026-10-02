@@ -1,4 +1,4 @@
-"""Assemble the files for a Hugging Face Docker Space in build/space/ (see DEPLOY.md).
+"""Assemble the files for a Hugging Face Docker Space in build/space/ (see docs/DEPLOY.md).
 
 A Space is configured by a YAML header at the top of its README.md. That header would look
 out of place on the GitHub README, so the Space gets its own short README, plus only the
@@ -76,7 +76,7 @@ def main() -> int:
     files = [p for p in OUT.rglob("*") if p.is_file()]
     size_mb = sum(p.stat().st_size for p in files) / 1e6
     print(f"Prepared {len(files)} files ({size_mb:.1f} MB) in {OUT}")
-    print("Next: follow 'Push to the Space' in DEPLOY.md.")
+    print("Next: follow 'Push to the Space' in docs/DEPLOY.md.")
     return 0
 
 

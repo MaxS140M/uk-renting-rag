@@ -1,7 +1,7 @@
 # Deploying the demo
 
 > **Status:** the demo is not currently hosted; it runs locally (see the Quick start in the
-> [README](README.md)). This guide documents how it can be deployed when needed.
+> [README](../README.md)). This guide documents how it can be deployed when needed.
 
 The app is one Docker image: a FastAPI server with the Gradio demo page mounted on it,
 serving both on port 7860. The embedding model, reranker and search index are built into

@@ -8,8 +8,12 @@ guidance, cites its sources, and says so when the guidance does not cover a ques
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/)
 
 
-# Demo
-![Asking the assistant about deposits](RAG_Demo.gif) 
+## Demo
+
+![Asking the assistant about deposits](docs/demo.gif)
+
+The demo runs locally with one command (see [Quick start](#quick-start)); it is not hosted
+publicly.
 
 ## Results
 
@@ -66,14 +70,22 @@ flowchart LR
 Every component sits behind a common interface and is switchable in configuration, which is
 what made the one-change-at-a-time comparisons in the evaluation possible.
 
-| Path | Contents |
-|---|---|
-| `src/rag/` | Library: chunking, retrieval (dense, BM25, hybrid), reranking, generation, evaluation |
-| `app/` | FastAPI API, Gradio demo, rate limiting and the daily cap |
-| `scripts/` | Data collection, indexing, question authoring, evaluation reports, deployment |
-| `eval/` | Test set, experiment configs, results and error analysis |
-| `data/` | Frozen snapshot of the 47 GOV.UK documents ([details](data/README.md)) |
-| `tests/` | 250+ tests; the LLM is always mocked, so no test calls a paid API |
+```
+├── app/                   FastAPI API, Gradio demo, rate limit and daily cap
+├── src/rag/               the RAG library: chunking, indexing, retrieval, reranking,
+│   │                      generation, prompts, pipeline, configuration
+│   └── evaluation/        test-set schema and tools, metrics, LLM judges, evaluation runner
+├── scripts/
+│   ├── ask.py             ask a question from the command line
+│   ├── data/              download the GOV.UK pages, chunk them, build the indexes
+│   ├── testset/           generate, review, validate and split the test set
+│   ├── evaluation/        run the evaluation, judge agreement, results and error analysis
+│   └── deploy/            bake models into the Docker image, package for Hugging Face
+├── eval/                  results, error analysis, configs, test set and judge labels
+├── data/                  frozen snapshot of the 47 GOV.UK documents
+├── docs/                  deployment guide and demo GIF
+└── tests/                 250+ tests; the LLM is always mocked, so none call a paid API
+```
 
 ## Quick start
 
@@ -108,7 +120,7 @@ docker build -t uk-renting-rag . && docker run -p 7860:7860 --env-file .env uk-r
 The image bakes in the embedding model, reranker and index, runs as a non-root user and
 starts without downloading anything. CI builds it on every push and checks that it loads
 with no network access. The demo is not hosted publicly, but the image is ready to deploy:
-[DEPLOY.md](DEPLOY.md) covers Hugging Face Spaces and other Docker hosts.
+[docs/DEPLOY.md](docs/DEPLOY.md) covers Hugging Face Spaces and other Docker hosts.
 
 **API:**
 
@@ -190,7 +202,7 @@ split:
 - Allow several gold passages per question, so recall is not understated.
 - Have a person review the test set (the tooling exists: `scripts/testset/review_drafts.py`).
 - Re-run the evaluation with the deployed prompt (v2).
-- Add a demo GIF, and host the demo publicly ([DEPLOY.md](DEPLOY.md)).
+- Host the demo publicly ([docs/DEPLOY.md](docs/DEPLOY.md)).
 
 ## Licence and attribution
 

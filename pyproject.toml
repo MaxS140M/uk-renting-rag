@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "uk-renting-rag"
-version = "1.0.0"
+version = "1.0.1"
 description = "RAG question-answering assistant over UK GOV.UK renting and tenancy guidance."
 requires-python = ">=3.11"
 

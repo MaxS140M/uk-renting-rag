@@ -4,6 +4,20 @@ All notable changes to this project. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project uses
 [semantic versioning](https://semver.org/).
 
+## [1.0.1] - 2026-10-02
+
+Repository reorganised; no change to behaviour or results.
+
+### Changed
+- Library: evaluation modules moved into the `rag.evaluation` package (`schema`, `utils`,
+  `runner`, `metrics`, `judges`, `testset_generation`, `drafting`, `authoring`).
+- Scripts grouped by purpose into `scripts/data/`, `scripts/testset/`,
+  `scripts/evaluation/` (now including `run_eval.py`) and `scripts/deploy/`.
+- `eval/` split into `testset/`, `judge/` (files renamed without the `judge_` prefix),
+  `results/` and `early_checks/`.
+- `DEPLOY.md` and the demo GIF moved into `docs/`; the README shows the demo GIF.
+- The demo page shows its cold-start notice only when hosted on Hugging Face.
+
 ## [1.0.0] - 2026-10-02
 
 First release: a deployable, evaluated question-answering assistant for renting in England,
