@@ -213,3 +213,12 @@ def test_adjudicated_judge_figures_are_labelled_as_not_blind():
     }
     md = results_table.build_markdown(ROWS, EXPERIMENTS, stats, [])
     assert "not blind" in md and "kappa 0.71" in md and "kappa 0.00" in md
+
+
+def test_results_flag_a_prompt_version_mismatch():
+    rows = [dict(r, prompt_version="v0-old") for r in ROWS]
+    md = results_table.build_markdown(rows, EXPERIMENTS, None, [])
+    assert "measured with prompt v0-old" in md
+    assert "Prompt version" not in results_table.build_markdown(
+        [dict(r, prompt_version=results_table.PROMPT_VERSION) for r in ROWS], EXPERIMENTS, None, []
+    )

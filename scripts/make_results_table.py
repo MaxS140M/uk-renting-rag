@@ -18,6 +18,7 @@ import sys
 from rag.config import PROJECT_ROOT
 from rag.experiment import Experiment, changed_settings, load_experiments
 from rag.metrics import paired_bootstrap_ci
+from rag.prompts import PROMPT_VERSION
 
 EVAL_DIR = PROJECT_ROOT / "eval"
 SUMMARY = EVAL_DIR / "results" / "summary.csv"
@@ -282,8 +283,16 @@ def build_markdown(
         "[`README.md`](README.md#status-of-human-review)), so correctness has unknown noise "
         "from errors in the answer key. Retrieval metrics depend only on the verified quotes.",
         "- " + " ".join(s for s in judge_section(judge_stats) if s),
-        "",
     ]
+    measured = sorted({r.get("prompt_version") for r in rows if r.get("prompt_version")})
+    if measured and measured != [PROMPT_VERSION]:
+        lines.append(
+            f"- **Prompt version.** These results were measured with prompt "
+            f"{', '.join(measured)}; the current code uses prompt {PROMPT_VERSION}, which adds "
+            "prompt-injection hardening (the question is wrapped in its own tags). Answers "
+            "from the deployed demo have not been re-evaluated with it."
+        )
+    lines.append("")
 
     lines += ["## Held-out result (run once)", ""]
     if not heldout:
