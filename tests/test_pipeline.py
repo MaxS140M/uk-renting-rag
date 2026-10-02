@@ -39,7 +39,7 @@ def test_prompt_contains_every_passage_url_and_date(results):
         assert result.text in prompt
         assert result.url in prompt
         assert f"Retrieved: {result.date_retrieved}" in prompt
-    assert prompt.rstrip().endswith("Question: How long to protect my deposit?")
+    assert prompt.endswith("<question>\nHow long to protect my deposit?\n</question>")
 
 
 def test_system_prompt_states_the_grounding_rules():
